@@ -40,7 +40,6 @@ else
   rm -rf build/exe
   rm -rf build/res
   rm -rf build/*.cc
-  rm -rf build/mingw/CMakeFiles/OpenGL_Test.dir
   rm -rf build/mingw/CMakeFiles/Example.dir
 fi
 
