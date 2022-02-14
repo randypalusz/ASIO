@@ -5,14 +5,14 @@
 template <typename T>
 struct Header {
   T id{};
-  uint8_t size = 0;
+  uint16_t size = 0;
 };
 
 template <typename T>
 class Message {
  public:
   Message<T>(T id) { m_header.id = id; }
-  Message<T>(T id, uint8_t size, const std::vector<uint8_t> in) {
+  Message<T>(T id, uint16_t size, const std::vector<uint8_t> in) {
     m_header.id = id;
     m_header.size = size;
     m_data.insert(m_data.end(), in.begin(), in.end());
@@ -66,6 +66,7 @@ class Message {
   void pushData(const std::string& inStr) {
     m_data.insert(m_data.end(), inStr.begin(), inStr.end());
     m_header.size += inStr.length();
+    std::cout << "current header size: " << m_header.size << std::endl;
   }
 
   void printBytes() {
@@ -79,7 +80,8 @@ class Message {
   std::vector<uint8_t> getHeader() {
     std::vector<uint8_t> retHeader{};
     retHeader.push_back(m_header.id);
-    retHeader.push_back(m_header.size);
+    retHeader.push_back((m_header.size >> 8) & 0x00FF);
+    retHeader.push_back(m_header.size & 0x00FF);
     return retHeader;
   }
   std::vector<uint8_t> getBytes() {

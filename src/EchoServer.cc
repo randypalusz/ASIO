@@ -66,23 +66,20 @@ int main(int argc, char* argv[]) {
       m.pushData("{\n\"this\": 3,\n\"is\": \'a\',\n\"test\": \'hello\'\n}");
       // TODO: account for overflow case, where size of message is greater than number of
       //       bytes that can be held in uint8_t
-      // m.pushData(
-      //     "wuyzYHjnKGX5wztdWX25B2QtjxmLhTkDWNmojf40aemRRqk2ih9YvoCREBEBi6Ltvv9Eh93NUkkiWD"
-      //     "SgVxtl2qSPNJocYrJNW661mjS7Z2CjiKnkmGCtV1LrzqlBX9aOWPQ4DAayNDFS9HKgvqJzRAkLOrNJ"
-      //     "EoUUvtgZT9aGwfXtK6FDlEbEi8DmtRo5haqkISNtHPSbf3QtKszH2DJEqqyqP8Bm9thn5V8gW0j9vO"
-      //     "xanGt1o8JOxAs4RincoLlWMl0K3oKXKko3Ojy8CFxh7X8Bn5FkA8B7JdMDQtvVcKG3SXiWf44NxrZP"
-      //     "I1zfI2zNJrAqo1PODtS1lgr7gbobIDqCo09fHphVeKR6a6LmbHOuT7bSlUsMFgPxMhYzaT1bMWnTU4"
-      //     "2vhGbcKBw5oTHx7IF10DrTzhYaKP6jI2K8eXONSOp25Skx3Y13c5pfy0JODXMzNcNdBQQRkURdkl28"
-      //     "jIkxumN0YOcwejaPn8twAJRRCXq7BUj1tGE5ogXv5xIBSJpDGibuumkYjzxWhMI53DlwIPvKTOIQPV"
-      //     "uVUKoj0tSzGgQUQG76DXJRTAvzMgH9osy7KLozhGy2EAYbUq0EWizGOBFYP4W00zk8oQC88SULhDKN"
-      //     "RAestXPLBRsacWKN4drS2QBsZFq2zJatVjajrhstmHQnusauRqiq5zBYaxmh7fEzTx8bjcxGrzpuJn"
-      //     "7WHV721pHC8YJ1wjtUdLWfe7pwYY28nQeRWEjJL1Pc9NjKdKCg6FSaFvakXKVQ35n0QZ00X8LUlLFl"
-      //     "hyA9IYAqSpHPT2REuws2bxUqRwXHvMVssLfhEdQorm71NzKYbSHJ1KAgVWZyEvZMKcmRS2Ji0GvXBb"
-      //     "HmuOaf4jAin696jefbyK8rLRAV6qRzPAxrCRYtvNcIkKh1hsIgl8sQaAsH6XTfTAd0nxNjwnnAeGVR"
-      //     "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6");
-      // m.pushData(3.0f);
-      // const char* tempStr = inputString.c_str();
-      // m.pushData(tempStr);
+      m.pushData(
+          "wuyzYHjnKGX5wztdWX25B2QtjxmLhTkDWNmojf40aemRRqk2ih9YvoCREBEBi6Ltvv9Eh93NUkkiWD"
+          "SgVxtl2qSPNJocYrJNW661mjS7Z2CjiKnkmGCtV1LrzqlBX9aOWPQ4DAayNDFS9HKgvqJzRAkLOrNJ"
+          "EoUUvtgZT9aGwfXtK6FDlEbEi8DmtRo5haqkISNtHPSbf3QtKszH2DJEqqyqP8Bm9thn5V8gW0j9vO"
+          "xanGt1o8JOxAs4RincoLlWMl0K3oKXKko3Ojy8CFxh7X8Bn5FkA8B7JdMDQtvVcKG3SXiWf44NxrZP"
+          "I1zfI2zNJrAqo1PODtS1lgr7gbobIDqCo09fHphVeKR6a6LmbHOuT7bSlUsMFgPxMhYzaT1bMWnTU4"
+          "2vhGbcKBw5oTHx7IF10DrTzhYaKP6jI2K8eXONSOp25Skx3Y13c5pfy0JODXMzNcNdBQQRkURdkl28"
+          "jIkxumN0YOcwejaPn8twAJRRCXq7BUj1tGE5ogXv5xIBSJpDGibuumkYjzxWhMI53DlwIPvKTOIQPV"
+          "uVUKoj0tSzGgQUQG76DXJRTAvzMgH9osy7KLozhGy2EAYbUq0EWizGOBFYP4W00zk8oQC88SULhDKN"
+          "RAestXPLBRsacWKN4drS2QBsZFq2zJatVjajrhstmHQnusauRqiq5zBYaxmh7fEzTx8bjcxGrzpuJn"
+          "7WHV721pHC8YJ1wjtUdLWfe7pwYY28nQeRWEjJL1Pc9NjKdKCg6FSaFvakXKVQ35n0QZ00X8LUlLFl"
+          "hyA9IYAqSpHPT2REuws2bxUqRwXHvMVssLfhEdQorm71NzKYbSHJ1KAgVWZyEvZMKcmRS2Ji0GvXBb"
+          "HmuOaf4jAin696jefbyK8rLRAV6qRzPAxrCRYtvNcIkKh1hsIgl8sQaAsH6XTfTAd0nxNjwnnAeGVR"
+          "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND");
       m.printBytes();
       sendMessage(socket, remote_endpoint, m);
       std::cout << "message sent" << std::endl;
