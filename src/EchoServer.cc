@@ -33,9 +33,8 @@ asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
 }
 
 std::string make_daytime_string() {
-  using namespace std;  // For time_t, time and ctime;
-  time_t now = time(0);
-  return ctime(&now);
+  std::time_t now = std::time(0);
+  return std::ctime(&now);
 }
 
 // TODO: implement sending a header of fixed size that contains the size info
