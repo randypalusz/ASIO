@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include "asio.hpp"
-#include "Header.hpp"
+#include "Message.hpp"
 
 using asio::ip::udp;
 
@@ -15,34 +15,44 @@ void sendInit(udp::socket& socket, udp::endpoint& receiver_endpoint) {
   socket.send_to(asio::buffer(send_buf), receiver_endpoint);
 }
 
-size_t decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
+Header<int> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
   // byte 0 = size
   // bytes 1-99 = unused
-  std::vector<char32_t> header_recv_buf(Header::lengthInBytes);
+  std::vector<uint8_t> header_recv_buf(2);
   socket.receive_from(asio::buffer(header_recv_buf), sender_endpoint);
 
   std::cout << "Header: ";
-  for (char32_t c : header_recv_buf) {
-    std::cout << c;
+  for (uint8_t c : header_recv_buf) {
+    std::cout << std::to_string(c);
   }
   std::cout << std::endl;
 
-  size_t len = header_recv_buf[0];
-  std::cout << "Total length of message: " << len << " Bytes" << std::endl;
-  return len;
+  uint8_t len = header_recv_buf[1];
+  std::cout << "Total length of message: " << std::to_string(len) << " Bytes"
+            << std::endl;
+  return Header<int>{header_recv_buf[0], len};
 }
 
-std::string receiveMessage(size_t lengthInBytes, udp::socket& socket,
+std::string receiveMessage(size_t length, udp::socket& socket,
                            udp::endpoint& sender_endpoint) {
-  std::vector<char> data_recv_buf(lengthInBytes);
+  std::vector<uint8_t> data_recv_buf(length);
 
   socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
 
   for (char c : data_recv_buf) {
     std::cout << c;
   }
-
   return std::string(data_recv_buf.begin(), data_recv_buf.end());
+}
+
+Message<int> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  Header<int> header = decodeHeader(socket, sender_endpoint);
+
+  std::vector<uint8_t> data_recv_buf(header.size);
+  socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
+
+  Message<int> m(header.id, header.size, data_recv_buf);
+  return m;
 }
 
 int main(int argc, char* argv[]) {
@@ -64,9 +74,9 @@ int main(int argc, char* argv[]) {
     sendInit(socket, receiver_endpoint);
 
     udp::endpoint sender_endpoint;
+    Message<int> m = receiveMessage(socket, sender_endpoint);
 
-    size_t len = decodeHeader(socket, sender_endpoint);
-    std::string message = receiveMessage(len, socket, sender_endpoint);
+    m.printBytes();
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
