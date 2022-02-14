@@ -3,8 +3,14 @@
 #include <iostream>
 #include <thread>
 #include "asio.hpp"
+#include "Header.hpp"
 
 using asio::ip::udp;
+
+void waitForInitSignal(udp::socket& socket, udp::endpoint& endpoint) {
+  std::array<char, 1> recv_buf;
+  socket.receive_from(asio::buffer(recv_buf), endpoint);
+}
 
 std::string make_daytime_string() {
   using namespace std;  // For time_t, time and ctime;
@@ -20,9 +26,9 @@ int main() {
     udp::socket socket(io_context, udp::endpoint(udp::v4(), 13));
 
     for (;;) {
-      std::array<char, 1> recv_buf;
       udp::endpoint remote_endpoint;
-      socket.receive_from(asio::buffer(recv_buf), remote_endpoint);
+
+      waitForInitSignal(socket, remote_endpoint);
 
       std::string message = make_daytime_string();
 
