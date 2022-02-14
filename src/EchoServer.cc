@@ -12,6 +12,26 @@ void waitForInitSignal(udp::socket& socket, udp::endpoint& endpoint) {
   socket.receive_from(asio::buffer(recv_buf), endpoint);
 }
 
+void sendHeader(udp::socket& socket, udp::endpoint& endpoint, std::string& message) {
+  // byte 0 = size
+  // bytes 1-99 = other info (unused)
+  std::array<char32_t, Header::lengthInBytes> buffer;
+  buffer.fill({});
+  size_t sizeInBytes = message.size();
+  buffer[0] = sizeInBytes;
+
+  asio::error_code ignored_error;
+  socket.send_to(asio::buffer(buffer), endpoint, 0, ignored_error);
+}
+
+asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
+                             std::string message) {
+  sendHeader(socket, endpoint, message);
+
+  asio::error_code ignored_error;
+  socket.send_to(asio::buffer(message), endpoint, 0, ignored_error);
+}
+
 std::string make_daytime_string() {
   using namespace std;  // For time_t, time and ctime;
   time_t now = time(0);
@@ -30,10 +50,7 @@ int main() {
 
       waitForInitSignal(socket, remote_endpoint);
 
-      std::string message = make_daytime_string();
-
-      asio::error_code ignored_error;
-      socket.send_to(asio::buffer(message), remote_endpoint, 0, ignored_error);
+      sendMessage(socket, remote_endpoint, make_daytime_string());
     }
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

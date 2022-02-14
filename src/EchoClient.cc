@@ -5,16 +5,44 @@
 #include <vector>
 #include <string>
 #include "asio.hpp"
+#include "Header.hpp"
 
 using asio::ip::udp;
 
-// int main() {
-//   try {
-//     asio::io_context io_context;
-//     udp::socket socket(io_context, udp::endpoint(udp::v4(), 80));
-//     socket.
-//   }
-// }
+void sendInit(udp::socket& socket, udp::endpoint& receiver_endpoint) {
+  std::string send_buf = "0";
+  socket.send_to(asio::buffer(send_buf), receiver_endpoint);
+}
+
+size_t decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  // byte 0 = size
+  // bytes 1-99 = unused
+  std::vector<char32_t> header_recv_buf(Header::lengthInBytes);
+  socket.receive_from(asio::buffer(header_recv_buf), sender_endpoint);
+
+  std::cout << "Header: ";
+  for (char32_t c : header_recv_buf) {
+    std::cout << c;
+  }
+  std::cout << std::endl;
+
+  size_t len = header_recv_buf[0];
+  std::cout << "Total length of message: " << len << " Bytes" << std::endl;
+  return len;
+}
+
+std::string receiveMessage(size_t lengthInBytes, udp::socket& socket,
+                           udp::endpoint& sender_endpoint) {
+  std::vector<char> data_recv_buf(lengthInBytes);
+
+  socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
+
+  for (char c : data_recv_buf) {
+    std::cout << c;
+  }
+
+  return std::string(data_recv_buf.begin(), data_recv_buf.end());
+}
 
 int main(int argc, char* argv[]) {
   try {
@@ -32,26 +60,13 @@ int main(int argc, char* argv[]) {
     udp::socket socket(io_context);
     socket.open(udp::v4());
 
-    // std::array<char, 1> send_buf = {{0}};
-    std::string send_buf = "0";
-    socket.send_to(asio::buffer(send_buf), receiver_endpoint);
+    sendInit(socket, receiver_endpoint);
 
-    // std::array<char, 128> recv_buf;
+    udp::endpoint sender_endpoint;
 
-    std::cout << "press enter to initiate receiving" << std::endl;
-    std::cin.get();
+    size_t len = decodeHeader(socket, sender_endpoint);
+    std::string message = receiveMessage(len, socket, sender_endpoint);
 
-    while (socket.available()) {
-      std::vector<char> recv_buf(socket.available());
-      udp::endpoint sender_endpoint;
-      size_t len = socket.receive_from(asio::buffer(recv_buf), sender_endpoint);
-
-      // std::cout.write(recv_buf.data(), len);
-      for (char c : recv_buf) {
-        std::cout << c;
-      }
-      std::cout << std::endl;
-    }
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }
