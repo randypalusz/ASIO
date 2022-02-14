@@ -3,7 +3,7 @@
 
 class Header {
  public:
-  static const inline int lengthInBytes = 30;
+  static const inline int lengthInBytes = 1;
 
  private:
   Header(){};

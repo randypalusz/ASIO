@@ -1,3 +1,4 @@
+// https://www.boost.org/doc/libs/1_76_0/doc/html/boost_asio/tutorial/tutdaytime5.html
 #include <cstdlib>
 #include <functional>
 #include <iostream>
@@ -32,24 +33,41 @@ asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
   socket.send_to(asio::buffer(message), endpoint, 0, ignored_error);
 }
 
-std::string make_daytime_string() {
+std::string make_daytime_string(const std::string& addition = "") {
   std::time_t now = std::time(0);
-  return std::ctime(&now);
+  std::string s(std::ctime(&now));
+  s = s + addition;
+  return s;
 }
 
 // TODO: implement sending a header of fixed size that contains the size info
-int main() {
+int main(int argc, char* argv[]) {
+  int port = 13;
+  std::string inputString;
+  for (int i = 1; i < argc; i++) {
+    switch (i) {
+      case 1:
+        port = atoi(argv[i]);
+        break;
+      case 2:
+        inputString = argv[i];
+        break;
+      default:
+        break;
+    }
+  }
+
   try {
     asio::io_context io_context;
 
-    udp::socket socket(io_context, udp::endpoint(udp::v4(), 13));
+    udp::socket socket(io_context, udp::endpoint(udp::v4(), port));
 
     for (;;) {
       udp::endpoint remote_endpoint;
 
       waitForInitSignal(socket, remote_endpoint);
 
-      sendMessage(socket, remote_endpoint, make_daytime_string());
+      sendMessage(socket, remote_endpoint, make_daytime_string(inputString));
     }
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
