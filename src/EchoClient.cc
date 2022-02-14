@@ -18,15 +18,17 @@ void sendInit(udp::socket& socket, udp::endpoint& receiver_endpoint) {
 Header<int> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
   // byte 0 = size
   // bytes 1-99 = unused
-  std::vector<uint8_t> header_recv_buf(3);
+  std::vector<uint8_t> header_recv_buf(9);
 
   socket.receive_from(asio::buffer(header_recv_buf), sender_endpoint);
 
-  std::printf(
-      "Header: \n  type: %d\n  high_order_byte: 0x%02X\n  low_order_byte: 0x%02X\n",
-      header_recv_buf[0], header_recv_buf[1], header_recv_buf[2]);
+  printHeader(header_recv_buf);
 
-  uint16_t len = (header_recv_buf[1] << 8) | header_recv_buf[2];
+  // uint16_t len = (header_recv_buf[1] << 8) | header_recv_buf[2];
+  std::vector<uint8_t> headerSizeVector{header_recv_buf.begin() + 1,
+                                        header_recv_buf.end()};
+
+  uint64_t len = vectorToHeaderSize(headerSizeVector);
   std::cout << "Total length of message: " << std::to_string(len) << " Bytes"
             << std::endl;
   return Header<int>{header_recv_buf[0], len};

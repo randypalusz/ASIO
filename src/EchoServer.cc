@@ -82,7 +82,6 @@ int main(int argc, char* argv[]) {
           "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND");
       m.printBytes();
       sendMessage(socket, remote_endpoint, m);
-      std::cout << "message sent" << std::endl;
     }
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
