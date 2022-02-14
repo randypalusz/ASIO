@@ -1,4 +1,3 @@
-
 #include <cstdlib>
 #include <functional>
 #include <iostream>
@@ -7,52 +6,31 @@
 
 using asio::ip::udp;
 
-class server {
- public:
-  server(asio::io_context& io_context, short port)
-      : socket_(io_context, udp::endpoint(udp::v4(), port)) {
-    do_receive();
-  }
+std::string make_daytime_string() {
+  using namespace std;  // For time_t, time and ctime;
+  time_t now = time(0);
+  return ctime(&now);
+}
 
-  void do_receive() {
-    socket_.async_receive_from(asio::buffer(data_, max_length), sender_endpoint_,
-                               [this](asio::error_code ec, std::size_t bytes_recvd) {
-                                 if (!ec && bytes_recvd > 0) {
-                                   do_send(bytes_recvd);
-                                 } else {
-                                   do_receive();
-                                 }
-                               });
-  }
-
-  void do_send(std::size_t length) {
-    socket_.async_send_to(
-        asio::buffer(data_, length), sender_endpoint_,
-        [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) { do_receive(); });
-  }
-
- private:
-  udp::socket socket_;
-  udp::endpoint sender_endpoint_;
-  enum { max_length = 1024 };
-  char data_[max_length];
-};
-
-int main(int argc, char* argv[]) {
+// TODO: implement sending a header of fixed size that contains the size info
+int main() {
   try {
-    if (argc != 2) {
-      std::cerr << "Usage: async_udp_echo_server <port>\n";
-      return 1;
-    }
-
     asio::io_context io_context;
 
-    server s(io_context, std::atoi(argv[1]));
+    udp::socket socket(io_context, udp::endpoint(udp::v4(), 13));
 
-    io_context.run();
+    for (;;) {
+      std::array<char, 1> recv_buf;
+      udp::endpoint remote_endpoint;
+      socket.receive_from(asio::buffer(recv_buf), remote_endpoint);
 
+      std::string message = make_daytime_string();
+
+      asio::error_code ignored_error;
+      socket.send_to(asio::buffer(message), remote_endpoint, 0, ignored_error);
+    }
   } catch (std::exception& e) {
-    std::cerr << "Exception: " << e.what() << "\n";
+    std::cerr << e.what() << std::endl;
   }
 
   return 0;
