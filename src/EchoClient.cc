@@ -12,36 +12,33 @@
 using asio::ip::udp;
 
 void sendInit(udp::socket& socket, udp::endpoint& receiver_endpoint) {
-  std::string send_buf = "0";
+  std::array<char, 1> send_buf{'0'};
   socket.send_to(asio::buffer(send_buf), receiver_endpoint);
 }
 
-Header<int> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
-  // byte 0 = size
-  // bytes 1-99 = unused
-  std::vector<uint8_t> header_recv_buf(9);
+Header<uint8_t> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  std::vector<uint8_t> header_recv_buf(Header<uint8_t>::LENGTH_IN_BYTES);
 
+  // grab the header from the sender
   socket.receive_from(asio::buffer(header_recv_buf), sender_endpoint);
+  // reconstruct object from buffer
+  Header<uint8_t> h{header_recv_buf};
+  h.print();
 
-  printHeader(header_recv_buf);
-
-  // uint16_t len = (header_recv_buf[1] << 8) | header_recv_buf[2];
-  std::vector<uint8_t> headerSizeVector{header_recv_buf.begin() + 1,
-                                        header_recv_buf.end()};
-
-  uint64_t len = vectorToHeaderSize(headerSizeVector);
-  std::cout << "Total length of message: " << std::to_string(len) << " Bytes"
+  std::cout << "Total length of message: " << std::to_string(h.getSize()) << " Bytes"
             << std::endl;
-  return Header<int>{header_recv_buf[0], len};
+  return h;
 }
 
-Message<int> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
-  Header<int> header = decodeHeader(socket, sender_endpoint);
+Message<uint8_t> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  Header<uint8_t> header = decodeHeader(socket, sender_endpoint);
 
-  std::vector<uint8_t> data_recv_buf(header.size);
+  std::vector<uint8_t> data_recv_buf(header.getSize());
+  // grab the data from the sender
   socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
 
-  Message<int> m(header.id, header.size, data_recv_buf);
+  // reconstruct Message object from header + data
+  Message<uint8_t> m(header, data_recv_buf);
   return m;
 }
 
@@ -64,7 +61,7 @@ int main(int argc, char* argv[]) {
     sendInit(socket, receiver_endpoint);
 
     udp::endpoint sender_endpoint;
-    Message<int> m = receiveMessage(socket, sender_endpoint);
+    Message<uint8_t> m = receiveMessage(socket, sender_endpoint);
 
     m.printBytes();
 

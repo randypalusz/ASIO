@@ -33,7 +33,6 @@ std::string make_daytime_string(const std::string& addition = "") {
   return s;
 }
 
-// TODO: implement sending a header of fixed size that contains the size info
 int main(int argc, char* argv[]) {
   int port = 13;
   std::string inputString;
@@ -60,14 +59,12 @@ int main(int argc, char* argv[]) {
 
       waitForInitSignal(socket, remote_endpoint);
 
-      Message<int> m(1);
+      Message<uint8_t> m(1);
       m.pushData("hello");
       m.pushData("world");
       m.pushData(inputString);
       m.pushData("\n");
       m.pushData("{\n\"this\": 3,\n\"is\": \'a\',\n\"test\": \'hello\'\n}");
-      // TODO: account for overflow case, where size of message is greater than number of
-      //       bytes that can be held in uint8_t
       m.pushData(
           "wuyzYHjnKGX5wztdWX25B2QtjxmLhTkDWNmojf40aemRRqk2ih9YvoCREBEBi6Ltvv9Eh93NUkkiWD"
           "SgVxtl2qSPNJocYrJNW661mjS7Z2CjiKnkmGCtV1LrzqlBX9aOWPQ4DAayNDFS9HKgvqJzRAkLOrNJ"
@@ -83,8 +80,8 @@ int main(int argc, char* argv[]) {
           "HmuOaf4jAin696jefbyK8rLRAV6qRzPAxrCRYtvNcIkKh1hsIgl8sQaAsH6XTfTAd0nxNjwnnAeGVR"
           "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND");
       m.pushData(
-          "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7♣\"], [\"one pair\", "
-          "\"10♥\"]]}");
+          "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7, Ace\"], [\"one pair\", "
+          "\"10, Heart\"]]}");
       m.printBytes();
       sendMessage(socket, remote_endpoint, m);
     }
