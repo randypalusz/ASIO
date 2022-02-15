@@ -82,6 +82,9 @@ int main(int argc, char* argv[]) {
           "hyA9IYAqSpHPT2REuws2bxUqRwXHvMVssLfhEdQorm71NzKYbSHJ1KAgVWZyEvZMKcmRS2Ji0GvXBb"
           "HmuOaf4jAin696jefbyK8rLRAV6qRzPAxrCRYtvNcIkKh1hsIgl8sQaAsH6XTfTAd0nxNjwnnAeGVR"
           "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND");
+      m.pushData(
+          "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7♣\"], [\"one pair\", "
+          "\"10♥\"]]}");
       m.printBytes();
       sendMessage(socket, remote_endpoint, m);
     }
