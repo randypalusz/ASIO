@@ -7,7 +7,8 @@
 #include <vector>
 
 template <typename T>
-struct Header {
+class Header {
+ public:
   Header<T>(T id, uint64_t size) {
     this->id = id;
     this->size = size;

@@ -38,8 +38,7 @@ Message<uint8_t> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpo
   socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
 
   // reconstruct Message object from header + data
-  Message<uint8_t> m(header, data_recv_buf);
-  return m;
+  return Message<uint8_t>{header, data_recv_buf};
 }
 
 int main(int argc, char* argv[]) {
