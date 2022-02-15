@@ -23,8 +23,6 @@ else
   rm -rf build/exe
   rm -rf build/res
   rm -rf build/*.cc
-  rm -rf build/clang/CMakeFiles/OpenGL_Test.dir
-  rm -rf build/clang/CMakeFiles/Example.dir
 fi
 
 mkdir -p build/clang

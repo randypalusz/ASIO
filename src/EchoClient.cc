@@ -2,11 +2,12 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <string>
 #include <thread>
 #include <vector>
-#include <string>
-#include "asio.hpp"
+
 #include "Message.hpp"
+#include "asio.hpp"
 
 using asio::ip::udp;
 
@@ -32,18 +33,6 @@ Header<int> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
   std::cout << "Total length of message: " << std::to_string(len) << " Bytes"
             << std::endl;
   return Header<int>{header_recv_buf[0], len};
-}
-
-std::string receiveMessage(size_t length, udp::socket& socket,
-                           udp::endpoint& sender_endpoint) {
-  std::vector<uint8_t> data_recv_buf(length);
-
-  socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
-
-  for (char c : data_recv_buf) {
-    std::cout << c;
-  }
-  return std::string(data_recv_buf.begin(), data_recv_buf.end());
 }
 
 Message<int> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {

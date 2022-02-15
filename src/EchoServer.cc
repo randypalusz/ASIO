@@ -3,8 +3,9 @@
 #include <functional>
 #include <iostream>
 #include <thread>
-#include "asio.hpp"
+
 #include "Message.hpp"
+#include "asio.hpp"
 
 using asio::ip::udp;
 
@@ -22,6 +23,7 @@ asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
   socket.send_to(asio::buffer(message.getHeader()), endpoint, 0, ignored_error);
   // send body
   socket.send_to(asio::buffer(message.getBytes()), endpoint, 0, ignored_error);
+  return ignored_error;
 }
 
 std::string make_daytime_string(const std::string& addition = "") {

@@ -40,13 +40,17 @@ add_definitions(-DASIO_HAS_VARIADIC_TEMPLATES)
 add_definitions(-DASIO_HAS_STD_FUNCTION)
 add_definitions(-DASIO_HAS_STD_CHRONO)
 add_definitions(-DBOOST_ALL_NO_LIB)
+if(WIN32)
 add_definitions(-D_WIN32_WINNT=0x0501)
 add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
+endif(WIN32)
 
 target_include_directories(EchoServer PRIVATE "${ASIO_DIR}/include")
 target_include_directories(EchoClient PRIVATE "${ASIO_DIR}/include")
+if(WIN32)
 target_link_libraries(EchoServer wsock32 ws2_32)
 target_link_libraries(EchoClient wsock32 ws2_32)
+endif(WIN32)
 
 
 
