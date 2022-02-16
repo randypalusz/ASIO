@@ -64,6 +64,23 @@ int main(int argc, char* argv[]) {
 
     m.printBytes();
 
+    // Below is demonstrating that arbitrary data can be restored after send
+    struct temp {
+      uint8_t a;
+      uint8_t b;
+    } d[5];
+    m.getBytes(d, m.getSize() - 10);
+    std::cout << std::to_string(d[0].a) << std::endl;
+    std::cout << std::to_string(d[0].b) << std::endl;
+    std::cout << std::to_string(d[1].a) << std::endl;
+    std::cout << std::to_string(d[1].b) << std::endl;
+    std::cout << std::to_string(d[2].a) << std::endl;
+    std::cout << std::to_string(d[2].b) << std::endl;
+    std::cout << std::to_string(d[3].a) << std::endl;
+    std::cout << std::to_string(d[3].b) << std::endl;
+    std::cout << std::to_string(d[4].a) << std::endl;
+    std::cout << std::to_string(d[4].b) << std::endl;
+
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }

@@ -82,6 +82,12 @@ int main(int argc, char* argv[]) {
       m.pushData(
           "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7, Ace\"], [\"one pair\", "
           "\"10, Heart\"]]}");
+      struct temp {
+        uint8_t a = 3;
+        uint8_t b = 4;
+      } d[5];
+      m.pushData(d);
+
       m.printBytes();
       sendMessage(socket, remote_endpoint, m);
     }

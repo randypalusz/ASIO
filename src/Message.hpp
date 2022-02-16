@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -85,6 +86,27 @@ class Message {
     m_data.insert(m_data.end(), inStr.begin(), inStr.end());
     m_header.incrementSize(inStr.length());
     std::cout << "current header size: " << m_header.getSize() << std::endl;
+  }
+
+  template <typename DataType>
+  void pushData(const DataType& in) {
+    size_t dataTypeSize = sizeof(DataType);
+    size_t idx = m_data.size();
+
+    m_header.incrementSize(dataTypeSize);
+
+    m_data.resize(m_data.size() + dataTypeSize);
+    std::memcpy(m_data.data() + idx, &in, dataTypeSize);
+
+    std::cout << "current header size: " << m_header.getSize() << std::endl;
+  }
+
+  template <typename DataType>
+  void getBytes(DataType& outStructure, size_t start) const {
+    if (m_data.empty()) {
+      return;
+    }
+    std::memcpy(&outStructure, m_data.data() + start, sizeof(DataType));
   }
 
   void printBytes() {
