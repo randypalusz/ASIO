@@ -67,6 +67,7 @@ int main(int argc, char* argv[]) {
       uint8_t a;
       uint8_t b;
     } d[5];
+    float x;
 
     // m.getBytes(d, m.getSize() - 10);
 
@@ -74,10 +75,12 @@ int main(int argc, char* argv[]) {
     //       based on the ID of the message (e.g., if ID is 1, get string (will need to
     //       calc #bytes to read), then int)
     m.getBytes(d, m.getLayoutBytes(7));
+    m.getBytes(x, m.getLayoutBytes(8));
     std::cout << "value of d: " << std::endl;
     for (int i = 0; i <= 4; i++) {
       printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, d[i].a, d[i].b);
     }
+    printf("value of x: %f", x);
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

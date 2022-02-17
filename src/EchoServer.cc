@@ -88,6 +88,7 @@ int main(int argc, char* argv[]) {
       } d[5];
       d[4].b = 5;
       m.pushData(d);
+      m.pushData(3.0f);
 
       m.printHeader();
       m.printBytes();

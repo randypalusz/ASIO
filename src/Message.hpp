@@ -57,7 +57,13 @@ class Message {
     std::memcpy(&outStructure, m_data.data() + start, sizeof(DataType));
   }
 
-  uint64_t getLayoutBytes(size_t idx) { return m_dataLayout.at(idx); }
+  uint64_t getLayoutBytes(size_t idx) {
+    try {
+      return m_dataLayout.at(idx);
+    } catch (const std::exception& e) {
+      return 0;
+    }
+  }
 
   void printBytes() {
     std::cout << "Bytes: ";
