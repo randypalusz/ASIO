@@ -9,32 +9,44 @@
 
 #include "Header.hpp"
 
+// Everything here is big-endian
+
 template <typename T>
 class Message {
  public:
-  Message<T>(T id) : m_header(id, 0) {}
-  // allow constructing of message on receiving side
-  Message<T>(Header<T> header, const std::vector<uint8_t>& newData) : m_header(header) {
-    m_data.insert(m_data.end(), newData.begin(), newData.end());
+  Message<T>(T id) : m_header(id, 0, 0) {}
+  // allow constructing of message on receiving side by passing entire receiver buffer
+  Message<T>(Header<T> header, const std::vector<uint8_t>& body_recv_buf)
+      : m_header(header) {
+    packLayoutBytes(body_recv_buf);
+    m_data.insert(m_data.end(), body_recv_buf.begin() + header.getLayoutSize(),
+                  body_recv_buf.end());
   }
 
   void pushData(const std::string& inStr) {
+    uint64_t idx = m_data.size();
     m_data.insert(m_data.end(), inStr.begin(), inStr.end());
     m_header.incrementSize(inStr.length());
-    std::cout << "current header size: " << m_header.getSize() << std::endl;
+    m_header.incrementLayoutSize(8);
+    m_dataLayout.push_back(idx);
+    // std::cout << "current header size: " << m_header.getSize() << std::endl;
   }
 
   template <typename DataType>
   void pushData(const DataType& in) {
-    size_t dataTypeSize = sizeof(DataType);
-    size_t idx = m_data.size();
+    uint64_t dataTypeSize = sizeof(DataType);
+    uint64_t idx = m_data.size();
 
     m_header.incrementSize(dataTypeSize);
 
     m_data.resize(m_data.size() + dataTypeSize);
     std::memcpy(m_data.data() + idx, &in, dataTypeSize);
 
-    std::cout << "current header size: " << m_header.getSize() << std::endl;
+    // push this information to the data layout
+    m_header.incrementLayoutSize(8);
+    m_dataLayout.push_back(idx);
+
+    // std::cout << "current header size: " << m_header.getSize() << std::endl;
   }
 
   template <typename DataType>
@@ -45,6 +57,8 @@ class Message {
     std::memcpy(&outStructure, m_data.data() + start, sizeof(DataType));
   }
 
+  uint64_t getLayoutBytes(size_t idx) { return m_dataLayout.at(idx); }
+
   void printBytes() {
     std::cout << "Bytes: ";
     for (uint8_t byte : m_data) {
@@ -53,14 +67,48 @@ class Message {
     std::cout << std::endl;
   }
 
+  void printLayoutBytes() {
+    std::cout << "Layout Bytes: \n";
+    for (uint64_t byte : m_dataLayout) {
+      printf("  0x%016X\n", byte);
+    }
+    std::cout << std::endl;
+  }
+
+  void printHeader() { m_header.print(); }
+
   const std::vector<uint8_t> getHeader() { return m_header.construct(); }
-  std::vector<uint8_t> getBytes() { return m_data; }
+
+  std::vector<uint8_t> getBytes() {
+    std::vector<uint8_t> temp{};
+    for (uint64_t word : m_dataLayout) {
+      for (int shiftAmount = 64 - 8; shiftAmount >= 0; shiftAmount -= 8) {
+        temp.push_back((word >> shiftAmount) & 0x00FF);
+      }
+    }
+    temp.insert(temp.end(), m_data.begin(), m_data.end());
+    return temp;
+  }
   size_t getSize() { return m_data.size(); }
 
  private:
+  void packLayoutBytes(const std::vector<uint8_t>& newData) {
+    // m_dataLayout.resize(m_header.getLayoutSize() / 8);
+    uint64_t word = 0;
+    int shiftAmount = 64;
+    for (int i = 0; i <= m_header.getLayoutSize(); i++) {
+      shiftAmount -= 8;
+      if (shiftAmount < 0) {
+        m_dataLayout.push_back(word);
+        word = 0;
+        shiftAmount = 56;
+      }
+      word |= (newData.at(i) << shiftAmount);
+    }
+  }
   Header<T> m_header;
-  // stores amount of bytes taken up by each thing pushed
-  std::vector<uint64_t> m_dataSizes;
+  // stores starting index of each thing pushed to m_data
+  std::vector<uint64_t> m_dataLayout;
   std::vector<uint8_t> m_data;
 };
 

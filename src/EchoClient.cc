@@ -24,16 +24,13 @@ Header<uint8_t> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint
   // reconstruct object from buffer
   Header<uint8_t> h{header_recv_buf};
   h.print();
-
-  std::cout << "Total length of message: " << std::to_string(h.getSize()) << " Bytes"
-            << std::endl;
   return h;
 }
 
 Message<uint8_t> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
   Header<uint8_t> header = decodeHeader(socket, sender_endpoint);
 
-  std::vector<uint8_t> data_recv_buf(header.getSize());
+  std::vector<uint8_t> data_recv_buf(header.getLayoutSize() + header.getSize());
   // grab the data from the sender
   socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
 
@@ -63,23 +60,24 @@ int main(int argc, char* argv[]) {
     Message<uint8_t> m = receiveMessage(socket, sender_endpoint);
 
     m.printBytes();
+    m.printLayoutBytes();
 
     // Below is demonstrating that arbitrary data can be restored after send
     struct temp {
       uint8_t a;
       uint8_t b;
     } d[5];
-    m.getBytes(d, m.getSize() - 10);
-    std::cout << std::to_string(d[0].a) << std::endl;
-    std::cout << std::to_string(d[0].b) << std::endl;
-    std::cout << std::to_string(d[1].a) << std::endl;
-    std::cout << std::to_string(d[1].b) << std::endl;
-    std::cout << std::to_string(d[2].a) << std::endl;
-    std::cout << std::to_string(d[2].b) << std::endl;
-    std::cout << std::to_string(d[3].a) << std::endl;
-    std::cout << std::to_string(d[3].b) << std::endl;
-    std::cout << std::to_string(d[4].a) << std::endl;
-    std::cout << std::to_string(d[4].b) << std::endl;
+
+    // m.getBytes(d, m.getSize() - 10);
+
+    // TODO: hacking this demonstration now - future use will be hard-coded layouts
+    //       based on the ID of the message (e.g., if ID is 1, get string (will need to
+    //       calc #bytes to read), then int)
+    m.getBytes(d, m.getLayoutBytes(7));
+    std::cout << "value of d: " << std::endl;
+    for (int i = 0; i <= 4; i++) {
+      printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, d[i].a, d[i].b);
+    }
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

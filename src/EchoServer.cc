@@ -18,7 +18,7 @@ template <typename T>
 asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
                              Message<T> message) {
   asio::error_code ignored_error;
-  std::vector<uint8_t> temp = message.getBytes();
+  // std::vector<uint8_t> temp = message.getBytes();
   // send header
   socket.send_to(asio::buffer(message.getHeader()), endpoint, 0, ignored_error);
   // send body
@@ -86,9 +86,12 @@ int main(int argc, char* argv[]) {
         uint8_t a = 3;
         uint8_t b = 4;
       } d[5];
+      d[4].b = 5;
       m.pushData(d);
 
+      m.printHeader();
       m.printBytes();
+      m.printLayoutBytes();
       sendMessage(socket, remote_endpoint, m);
     }
   } catch (std::exception& e) {
