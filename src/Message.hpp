@@ -85,6 +85,10 @@ class Message {
 
   const std::vector<uint8_t> getHeader() { return m_header.construct(); }
 
+  // converts the 64-bit starting locations into a vector of 8-bit values
+  // e.g.
+  // 0x000000001A300085 -> <0x00, 0x00, 0x00, 0x00, 0x1A, 0x30, 0x00, 0x85>
+  // then, appends the data vector to that to get the final message buffer
   std::vector<uint8_t> getBytes() {
     std::vector<uint8_t> temp{};
     for (uint64_t word : m_dataLayout) {
@@ -95,6 +99,7 @@ class Message {
     temp.insert(temp.end(), m_data.begin(), m_data.end());
     return temp;
   }
+
   size_t getSize() { return m_data.size(); }
 
  private:

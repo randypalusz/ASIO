@@ -3,108 +3,114 @@
 
 #include <vector>
 
+struct LayoutElement {
+  int start;
+  int end;
+};
+
+// byte 0 = ID
+// bytes 1->8, high->low order bytes describing data layout size in bytes
+// bytes 9->16, high->low order bytes describing data size in bytes
+struct HeaderLayout {
+  static inline LayoutElement ID{0, 1};
+  static inline LayoutElement LayoutSize{1, 9};
+  static inline LayoutElement DataSize{9, 17};
+  std::vector<LayoutElement> order{ID, LayoutSize, DataSize};
+};
+
 template <typename T>
 class Header {
  public:
   Header<T>(T id, uint64_t layoutSize, uint64_t size) {
-    this->id = id;
-    this->size = size;
-    this->layoutSize = layoutSize;
+    m_id = id;
+    m_size = size;
+    m_layoutSize = layoutSize;
     vectorizeSize();
   }
-  // Header<T>(T id, const std::vector<uint8_t> layoutSizeVector,
-  //           const std::vector<uint8_t> sizeVector) {
-  //   this->id = id;
-  //   this->vectorizedSize = sizeVector;
-  //   this->vectorizedLayoutSize = layoutSizeVector;
-  //   setSizeFromVector();
-  // }
+
   Header<T>(const std::vector<uint8_t>& header_recv_vector) {
-    this->id = header_recv_vector.at(0);
-    this->vectorizedLayoutSize.insert(this->vectorizedLayoutSize.begin(),
-                                      header_recv_vector.begin() + 1,
-                                      header_recv_vector.begin() + 9);
-    this->vectorizedSize.insert(this->vectorizedSize.begin(),
-                                header_recv_vector.begin() + 9, header_recv_vector.end());
+    m_id = header_recv_vector.at(HeaderLayout::ID.start);
+    m_layoutSizeBytes.insert(m_layoutSizeBytes.begin(),
+                             header_recv_vector.begin() + HeaderLayout::LayoutSize.start,
+                             header_recv_vector.begin() + HeaderLayout::LayoutSize.end);
+
+    m_sizeBytes.insert(m_sizeBytes.begin(),
+                       header_recv_vector.begin() + HeaderLayout::DataSize.start,
+                       header_recv_vector.begin() + HeaderLayout::DataSize.end);
     setSizeFromVector();
   }
   void setSize(uint64_t newSize) {
-    this->size = newSize;
+    m_size = newSize;
     vectorizeSize();
   }
   void setLayoutSize(uint64_t newSize) {
-    this->layoutSize = newSize;
+    m_layoutSize = newSize;
     vectorizeSize();
   }
   void incrementSize(uint64_t sizeToAdd) {
-    this->size += sizeToAdd;
+    m_size += sizeToAdd;
     vectorizeSize();
   }
   void incrementLayoutSize(uint64_t sizeToAdd) {
-    this->layoutSize += sizeToAdd;
+    m_layoutSize += sizeToAdd;
     vectorizeSize();
   }
-  const uint64_t getSize() const { return size; }
-  const uint64_t getLayoutSize() const { return layoutSize; }
-  const std::vector<uint8_t> getVectorizedSize() const { return vectorizedSize; }
-  const std::vector<uint8_t> getVectorizedLayoutSize() const {
-    return vectorizedLayoutSize;
-  }
+  const uint64_t getSize() const { return m_size; }
+  const uint64_t getLayoutSize() const { return m_layoutSize; }
+  const std::vector<uint8_t> getVectorizedSize() const { return m_sizeBytes; }
+  const std::vector<uint8_t> getVectorizedLayoutSize() const { return m_layoutSizeBytes; }
   void print() const {
     std::cout << "-----------------------------------" << std::endl;
-    std::printf("Header: \n id: %d\n", this->id);
+    std::printf("Header: \n id: %d\n", m_id);
     std::printf(" data layout size bytes (high->low)\n");
-    for (int i = 0; i < this->vectorizedLayoutSize.size(); i++) {
-      uint8_t byte = this->vectorizedLayoutSize.at(i);
+    for (int i = 0; i < m_layoutSizeBytes.size(); i++) {
+      uint8_t byte = m_layoutSizeBytes.at(i);
       std::printf("     0x%02X\n", byte);
     }
     std::printf(" total layout size: %d\n", getLayoutSize());
     std::printf(" data bytes (high->low)\n");
-    for (int i = 0; i < this->vectorizedSize.size(); i++) {
-      uint8_t byte = this->vectorizedSize.at(i);
+    for (int i = 0; i < m_sizeBytes.size(); i++) {
+      uint8_t byte = m_sizeBytes.at(i);
       std::printf("     0x%02X\n", byte);
     }
     std::printf(" total size: %d\n", getSize());
     std::cout << "-----------------------------------" << std::endl;
   }
   const std::vector<uint8_t> construct() const {
-    // TODO: make id field larger to support ID types other than those 1 byte long
-    std::vector<uint8_t> temp{id};
-    temp.insert(temp.end(), vectorizedLayoutSize.begin(), vectorizedLayoutSize.end());
-    temp.insert(temp.end(), vectorizedSize.begin(), vectorizedSize.end());
+    std::vector<uint8_t> temp{m_id};
+    temp.insert(temp.end(), m_layoutSizeBytes.begin(), m_layoutSizeBytes.end());
+    temp.insert(temp.end(), m_sizeBytes.begin(), m_sizeBytes.end());
     return temp;
   }
-  // byte 0 = ID
-  // bytes 1->8, high->low order bytes describing data layout size in bytes
-  // bytes 9->16, high->low order bytes describing data size in bytes
-  T id{};
+
   inline static size_t LENGTH_IN_BYTES = 17;
 
  private:
   void vectorizeSize() {
-    vectorizedSize.clear();
-    vectorizedLayoutSize.clear();
+    m_sizeBytes.clear();
+    m_layoutSizeBytes.clear();
     for (int shiftAmount = (64 - 8); shiftAmount >= 0; shiftAmount -= 8) {
-      vectorizedSize.push_back((size >> shiftAmount) & 0x00FF);
-      vectorizedLayoutSize.push_back((layoutSize >> shiftAmount) & 0x00FF);
+      m_sizeBytes.push_back((m_size >> shiftAmount) & 0x00FF);
+      m_layoutSizeBytes.push_back((m_layoutSize >> shiftAmount) & 0x00FF);
     }
   }
   void setSizeFromVector() {
     int shiftAmount = 64 - 8;
-    for (uint8_t byte : this->vectorizedSize) {
-      size |= (byte << shiftAmount);
+    for (uint8_t byte : m_sizeBytes) {
+      m_size |= (byte << shiftAmount);
       shiftAmount -= 8;
     }
     shiftAmount = 64 - 8;
-    for (uint8_t byte : this->vectorizedLayoutSize) {
-      layoutSize |= (byte << shiftAmount);
+    for (uint8_t byte : m_layoutSizeBytes) {
+      m_layoutSize |= (byte << shiftAmount);
       shiftAmount -= 8;
     }
   }
-  uint64_t size = 0;
-  uint64_t layoutSize = 0;
-  std::vector<uint8_t> vectorizedSize{};
-  std::vector<uint8_t> vectorizedLayoutSize{};
+  T m_id{};
+  uint64_t m_size = 0;
+  uint64_t m_layoutSize = 0;
+  std::vector<uint8_t> m_sizeBytes{};
+  std::vector<uint8_t> m_layoutSizeBytes{};
 };
 
 #endif
