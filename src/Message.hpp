@@ -11,13 +11,11 @@
 
 // Everything here is big-endian
 
-template <typename T>
 class Message {
  public:
-  Message<T>(T id) : m_header(id, 0, 0) {}
+  Message(uint8_t id) : m_header(id, 0, 0) {}
   // allow constructing of message on receiving side by passing entire receiver buffer
-  Message<T>(Header<T> header, const std::vector<uint8_t>& body_recv_buf)
-      : m_header(header) {
+  Message(Header header, const std::vector<uint8_t>& body_recv_buf) : m_header(header) {
     packLayoutBytes(body_recv_buf);
     m_data.insert(m_data.end(), body_recv_buf.begin() + header.getLayoutSize(),
                   body_recv_buf.end());
@@ -117,7 +115,7 @@ class Message {
       word |= (newData.at(i) << shiftAmount);
     }
   }
-  Header<T> m_header;
+  Header m_header;
   // stores starting index of each thing pushed to m_data
   std::vector<uint64_t> m_dataLayout;
   std::vector<uint8_t> m_data;

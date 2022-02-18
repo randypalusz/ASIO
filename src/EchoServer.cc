@@ -14,11 +14,9 @@ void waitForInitSignal(udp::socket& socket, udp::endpoint& endpoint) {
   socket.receive_from(asio::buffer(recv_buf), endpoint);
 }
 
-template <typename T>
 asio::error_code sendMessage(udp::socket& socket, udp::endpoint& endpoint,
-                             Message<T> message) {
+                             Message message) {
   asio::error_code ignored_error;
-  // std::vector<uint8_t> temp = message.getBytes();
   // send header
   socket.send_to(asio::buffer(message.getHeader()), endpoint, 0, ignored_error);
   // send body
@@ -59,7 +57,7 @@ int main(int argc, char* argv[]) {
 
       waitForInitSignal(socket, remote_endpoint);
 
-      Message<uint8_t> m(1);
+      Message m(1);
       m.pushData("hello");
       m.pushData("world");
       m.pushData(inputString);

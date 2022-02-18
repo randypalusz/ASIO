@@ -18,17 +18,16 @@ struct HeaderLayout {
   std::vector<LayoutElement> order{ID, LayoutSize, DataSize};
 };
 
-template <typename T>
 class Header {
  public:
-  Header<T>(T id, uint64_t layoutSize, uint64_t size) {
+  Header(uint8_t id, uint64_t layoutSize, uint64_t size) {
     m_id = id;
     m_size = size;
     m_layoutSize = layoutSize;
     vectorizeSize();
   }
 
-  Header<T>(const std::vector<uint8_t>& header_recv_vector) {
+  Header(const std::vector<uint8_t>& header_recv_vector) {
     m_id = header_recv_vector.at(HeaderLayout::ID.start);
     m_layoutSizeBytes.insert(m_layoutSizeBytes.begin(),
                              header_recv_vector.begin() + HeaderLayout::LayoutSize.start,
@@ -106,7 +105,7 @@ class Header {
       shiftAmount -= 8;
     }
   }
-  T m_id{};
+  uint8_t m_id{};
   uint64_t m_size = 0;
   uint64_t m_layoutSize = 0;
   std::vector<uint8_t> m_sizeBytes{};

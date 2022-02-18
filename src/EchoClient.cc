@@ -16,26 +16,26 @@ void sendInit(udp::socket& socket, udp::endpoint& receiver_endpoint) {
   socket.send_to(asio::buffer(send_buf), receiver_endpoint);
 }
 
-Header<uint8_t> decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
-  std::vector<uint8_t> header_recv_buf(Header<uint8_t>::LENGTH_IN_BYTES);
+Header decodeHeader(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  std::vector<uint8_t> header_recv_buf(Header::LENGTH_IN_BYTES);
 
   // grab the header from the sender
   socket.receive_from(asio::buffer(header_recv_buf), sender_endpoint);
   // reconstruct object from buffer
-  Header<uint8_t> h{header_recv_buf};
+  Header h{header_recv_buf};
   h.print();
   return h;
 }
 
-Message<uint8_t> receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
-  Header<uint8_t> header = decodeHeader(socket, sender_endpoint);
+Message receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
+  Header header = decodeHeader(socket, sender_endpoint);
 
   std::vector<uint8_t> data_recv_buf(header.getLayoutSize() + header.getSize());
   // grab the data from the sender
   socket.receive_from(asio::buffer(data_recv_buf), sender_endpoint);
 
   // reconstruct Message object from header + data
-  return Message<uint8_t>{header, data_recv_buf};
+  return Message{header, data_recv_buf};
 }
 
 int main(int argc, char* argv[]) {
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     sendInit(socket, receiver_endpoint);
 
     udp::endpoint sender_endpoint;
-    Message<uint8_t> m = receiveMessage(socket, sender_endpoint);
+    Message m{receiveMessage(socket, sender_endpoint)};
 
     m.printBytes();
     m.printLayoutBytes();
