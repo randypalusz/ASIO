@@ -12,12 +12,14 @@ struct LayoutElement {
 // bytes 1->8, high->low order bytes describing data layout size in bytes
 // bytes 9->16, high->low order bytes describing data size in bytes
 struct HeaderLayout {
+  // TODO: make the ID field 16-bit to support many more message types
   static inline LayoutElement ID{0, 1};
   static inline LayoutElement LayoutSize{1, 9};
   static inline LayoutElement DataSize{9, 17};
   std::vector<LayoutElement> order{ID, LayoutSize, DataSize};
 };
 
+// TODO: move to .cpp file
 class Header {
  public:
   Header(uint8_t id, uint64_t layoutSize, uint64_t size) {

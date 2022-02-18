@@ -69,8 +69,6 @@ int main(int argc, char* argv[]) {
     } d[5];
     float x;
 
-    // m.getBytes(d, m.getSize() - 10);
-
     // TODO: hacking this demonstration now - future use will be hard-coded layouts
     //       based on the ID of the message (e.g., if ID is 1, get string (will need to
     //       calc #bytes to read), then int)

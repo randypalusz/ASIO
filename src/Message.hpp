@@ -11,6 +11,7 @@
 
 // Everything here is big-endian
 
+// TODO: move to .cpp file
 class Message {
  public:
   Message(uint8_t id) : m_header(id, 0, 0) {}
@@ -27,7 +28,6 @@ class Message {
     m_header.incrementSize(inStr.length());
     m_header.incrementLayoutSize(8);
     m_dataLayout.push_back(idx);
-    // std::cout << "current header size: " << m_header.getSize() << std::endl;
   }
 
   template <typename DataType>
@@ -43,8 +43,6 @@ class Message {
     // push this information to the data layout
     m_header.incrementLayoutSize(8);
     m_dataLayout.push_back(idx);
-
-    // std::cout << "current header size: " << m_header.getSize() << std::endl;
   }
 
   template <typename DataType>
