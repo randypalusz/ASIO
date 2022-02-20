@@ -15,18 +15,23 @@ set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
 
-set(SOURCES
+set(COMMON_SOURCES)
+
+set(CLIENT_SOURCES
   ${SRC_DIR}/ClientApp.cc
-  ${SRC_DIR}/ServerApp.cc
   ${SRC_DIR}/Client.cpp
+)
+
+set(SERVER_SOURCES
   ${SRC_DIR}/Server.cpp
+  ${SRC_DIR}/ServerApp.cc
 )
 
 # adding executable, changing executable suffix for windows
 set(CMAKE_EXECUTABLE_SUFFIX ".cc")
 # set(${PROJECT_NAME} ${PROJECT_NAME}.cc)
-add_executable(Server ${SRC_DIR}/ServerApp.cc ${SRC_DIR}/Server.cpp)
-add_executable(Client ${SRC_DIR}/ClientApp.cc ${SRC_DIR}/Client.cpp)
+add_executable(Server ${SERVER_SOURCES})
+add_executable(Client ${CLIENT_SOURCES})
 target_include_directories(Server PRIVATE "${SRC_DIR}")
 target_include_directories(Client PRIVATE "${SRC_DIR}")
 
