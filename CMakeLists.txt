@@ -16,17 +16,19 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
 
 set(SOURCES
-  ${SRC_DIR}/EchoClient.cc
-  ${SRC_DIR}/EchoServer.cc
+  ${SRC_DIR}/ClientApp.cc
+  ${SRC_DIR}/ServerApp.cc
+  ${SRC_DIR}/Client.cpp
+  ${SRC_DIR}/Server.cpp
 )
 
 # adding executable, changing executable suffix for windows
 set(CMAKE_EXECUTABLE_SUFFIX ".cc")
 # set(${PROJECT_NAME} ${PROJECT_NAME}.cc)
-add_executable(EchoServer ${SRC_DIR}/EchoServer.cc)
-add_executable(EchoClient ${SRC_DIR}/EchoClient.cc)
-target_include_directories(EchoServer PRIVATE "${SRC_DIR}")
-target_include_directories(EchoClient PRIVATE "${SRC_DIR}")
+add_executable(Server ${SRC_DIR}/ServerApp.cc ${SRC_DIR}/Server.cpp)
+add_executable(Client ${SRC_DIR}/ClientApp.cc ${SRC_DIR}/Client.cpp)
+target_include_directories(Server PRIVATE "${SRC_DIR}")
+target_include_directories(Client PRIVATE "${SRC_DIR}")
 
 # ASIO
 set(ASIO_DIR "${LIB_DIR}/asio/asio")
@@ -45,11 +47,11 @@ add_definitions(-D_WIN32_WINNT=0x0501)
 add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
 endif(WIN32)
 
-target_include_directories(EchoServer PRIVATE "${ASIO_DIR}/include")
-target_include_directories(EchoClient PRIVATE "${ASIO_DIR}/include")
+target_include_directories(Server PRIVATE "${ASIO_DIR}/include")
+target_include_directories(Client PRIVATE "${ASIO_DIR}/include")
 if(WIN32)
-target_link_libraries(EchoServer wsock32 ws2_32)
-target_link_libraries(EchoClient wsock32 ws2_32)
+target_link_libraries(Server wsock32 ws2_32)
+target_link_libraries(Client wsock32 ws2_32)
 endif(WIN32)
 
 
