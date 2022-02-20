@@ -9,7 +9,7 @@ using asio::ip::udp;
 
 class Server {
  public:
-  Server(asio::io_context& io_context, int port, const std::string& inputString = "");
+  Server(int port, const std::string& inputString = "");
   void run();
 
  private:
@@ -21,8 +21,9 @@ class Server {
   asio::error_code sendMessage(Message message);
 
  private:
-  int m_port;
-  std::string m_inputString;
+  asio::io_context m_context{};
+  int m_port{};
+  std::string m_inputString{""};
   udp::socket m_socket;
   udp::endpoint m_remoteEndpoint;
 };

@@ -1,8 +1,8 @@
 #include "Server.hpp"
 #include "asio.hpp"
 
-Server::Server(asio::io_context& context, int port, const std::string& inputString) try
-    : m_socket{context, udp::endpoint(udp::v4(), port)},
+Server::Server(int port, const std::string& inputString) try
+    : m_socket{m_context, udp::endpoint(udp::v4(), port)},
       m_port{port},
       m_inputString{inputString} {
 } catch (std::exception& e) {

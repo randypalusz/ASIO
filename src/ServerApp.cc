@@ -24,8 +24,7 @@ int main(int argc, char* argv[]) {
         break;
     }
   }
-  asio::io_context io_context;
-  Server s{io_context, port, inputString};
+  Server s{port, inputString};
   s.run();
 
   return 0;
