@@ -39,17 +39,31 @@ Message receiveMessage(udp::socket& socket, udp::endpoint& sender_endpoint) {
 }
 
 int main(int argc, char* argv[]) {
+  std::string ip{"localhost"};
+  std::string port{"13"};
   try {
-    if (argc != 2) {
-      std::cerr << "Usage: client <host>" << std::endl;
+    // if too many args, or ip specified without port, throw error
+    if ((argc > 3) || (argc == 2)) {
+      std::cerr << "Usage: client <host> <port>" << std::endl;
       return 1;
+    }
+    for (int i = 1; i < argc; i++) {
+      switch (i) {
+        case 1:
+          ip = argv[i];
+          break;
+        case 2:
+          port = argv[i];
+          break;
+        default:
+          break;
+      }
     }
 
     asio::io_context io_context;
 
     udp::resolver resolver(io_context);
-    udp::endpoint receiver_endpoint =
-        *resolver.resolve(udp::v4(), argv[1], "daytime").begin();
+    udp::endpoint receiver_endpoint = *resolver.resolve(udp::v4(), ip, port).begin();
 
     udp::socket socket(io_context);
     socket.open(udp::v4());
