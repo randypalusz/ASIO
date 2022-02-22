@@ -9,7 +9,7 @@ using asio::ip::udp;
 
 class Server {
  public:
-  Server(int port, const std::string& inputString = "");
+  Server(int port = 13, const std::string& inputString = "");
   void run();
 
  private:

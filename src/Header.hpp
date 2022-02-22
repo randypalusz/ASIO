@@ -1,7 +1,9 @@
 #ifndef HEADER_HPP
 #define HEADER_HPP
 
+#include <stdint.h>
 #include <vector>
+#include <iostream>
 
 struct LayoutElement {
   int start;
