@@ -49,7 +49,7 @@ void Client::run() {
     m.printBytes();
     m.printLayoutBytes();
 
-    std::unique_ptr<MessageLayout> data = loader->getMessage(1, m);
+    std::unique_ptr<MessageLayout> data = loader->getMessage(m.getId(), m);
     data->print();
 
   } catch (std::exception& e) {

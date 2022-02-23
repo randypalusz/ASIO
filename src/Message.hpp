@@ -31,6 +31,8 @@ class Message {
     m_dataLayout.push_back(idx);
   }
 
+  inline const uint8_t getId() const { return m_header.getId(); }
+
   template <typename DataType>
   void pushData(const DataType& in) {
     uint64_t dataTypeSize = sizeof(DataType);
