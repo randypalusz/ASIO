@@ -1,4 +1,6 @@
 #include "Client.hpp"
+#include "MessageLoader.hpp"
+#include <memory>
 
 Client::Client(const std::string& ip, const std::string& port) try : m_socket{m_context} {
   udp::resolver resolver(m_context);
@@ -38,6 +40,7 @@ Message Client::receiveMessage() {
 
 void Client::run() {
   try {
+    MessageLoader* loader = MessageLoader::getInstance();
     sendInit();
 
     udp::endpoint sender_endpoint;
@@ -46,23 +49,17 @@ void Client::run() {
     m.printBytes();
     m.printLayoutBytes();
 
-    // Below is demonstrating that arbitrary data can be restored after send
-    struct temp {
-      uint8_t a;
-      uint8_t b;
-    } d[5];
-    float x;
+    std::unique_ptr<TestMessage> data = loader->getMessage<TestMessage>(m);
 
-    // TODO: hacking this demonstration now - future use will be hard-coded layouts
-    //       based on the ID of the message (e.g., if ID is 1, get string (will need to
-    //       calc #bytes to read), then int)
-    m.getBytes(d, m.getLayoutBytes(7));
-    m.getBytes(x, m.getLayoutBytes(8));
+    // printing stuff to prove that it works
     std::cout << "value of d: " << std::endl;
     for (int i = 0; i <= 4; i++) {
-      printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, d[i].a, d[i].b);
+      printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, data->p2[i].a, data->p2[i].b);
     }
-    printf("value of x: %f", x);
+    printf("value of x: %f\n", data->p3);
+    printf("first string: %s", data->pStrings[0].c_str());
+    // END printing stuff to prove that it works
+
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }

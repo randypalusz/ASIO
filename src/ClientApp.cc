@@ -29,7 +29,11 @@ int main(int argc, char* argv[]) {
   }
 
   Client c{ip, port};
-  c.run();
+  try {
+    c.run();
+  } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
 
   return 0;
 }

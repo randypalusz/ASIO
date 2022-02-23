@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "Header.hpp"
 
@@ -46,11 +47,42 @@ class Message {
   }
 
   template <typename DataType>
-  void getBytes(DataType& outStructure, size_t start) const {
+  void getBytes(DataType& outStructure, size_t dataPosition) {
     if (m_data.empty()) {
       return;
     }
-    std::memcpy(&outStructure, m_data.data() + start, sizeof(DataType));
+    size_t bytesToRead = 0;
+    // if grabbing the last piece of data, read to the end
+    if (dataPosition == (m_dataLayout.size() - 1)) {
+      bytesToRead = m_data.size() - getLayoutBytes(dataPosition);
+    } else {
+      bytesToRead = getLayoutBytes(dataPosition + 1) - getLayoutBytes(dataPosition);
+    }
+    if (bytesToRead == 0) {
+      return;
+    }
+    std::memcpy(&outStructure, m_data.data() + getLayoutBytes(dataPosition), bytesToRead);
+  }
+
+  void getBytes(std::string& outString, size_t dataPosition) {
+    if (m_data.empty()) {
+      return;
+    }
+    size_t bytesToRead = 0;
+    // if grabbing the last piece of data, read to the end
+    if (dataPosition == (m_dataLayout.size() - 1)) {
+      bytesToRead = m_data.size() - getLayoutBytes(dataPosition);
+    } else {
+      bytesToRead = getLayoutBytes(dataPosition + 1) - getLayoutBytes(dataPosition);
+    }
+    if (bytesToRead == 0) {
+      return;
+    }
+    // outString.resize(bytesToRead);
+    // std::memcpy(&outString[0], m_data.data() + getLayoutBytes(dataPosition),
+    // bytesToRead);
+    outString.assign(m_data.data() + getLayoutBytes(dataPosition),
+                     m_data.data() + getLayoutBytes(dataPosition) + bytesToRead);
   }
 
   uint64_t getLayoutBytes(size_t idx) {

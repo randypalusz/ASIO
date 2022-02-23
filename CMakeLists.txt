@@ -13,6 +13,7 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES RELEASE)
 
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/utils)
 set(RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
 
 set(COMMON_SOURCES)
@@ -32,8 +33,8 @@ set(CMAKE_EXECUTABLE_SUFFIX ".cc")
 # set(${PROJECT_NAME} ${PROJECT_NAME}.cc)
 add_executable(Server ${SERVER_SOURCES})
 add_executable(Client ${CLIENT_SOURCES})
-target_include_directories(Server PRIVATE "${SRC_DIR}")
-target_include_directories(Client PRIVATE "${SRC_DIR}")
+target_include_directories(Server PRIVATE "${SRC_DIR}" "${INCLUDE_DIR}")
+target_include_directories(Client PRIVATE "${SRC_DIR}" "${INCLUDE_DIR}")
 
 # ASIO
 set(ASIO_DIR "${LIB_DIR}/asio/asio")
