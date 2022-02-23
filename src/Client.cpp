@@ -49,8 +49,15 @@ void Client::run() {
     m.printBytes();
     m.printLayoutBytes();
 
-    std::unique_ptr<MessageLayout> data = loader->getMessage(m.getId(), m);
+    // unique_ptr
+    auto data = loader->getMessage(m.getId(), m);
     data->print();
+
+    printf("\nTesting empty message:\n");
+    sendInit();
+    Message m2{receiveMessage()};
+    auto data2 = loader->getMessage(0, m);
+    data2->print();
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

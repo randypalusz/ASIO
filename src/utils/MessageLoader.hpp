@@ -14,6 +14,12 @@ class MessageLayout {
   virtual ~MessageLayout(){};
 };
 
+class EmptyMessage : public MessageLayout {
+ public:
+  void print() override { printf("Empty Message...\n"); }
+  void loadMessage(Message& m) { return; }
+};
+
 class TestMessage : public MessageLayout {
  public:
   std::array<std::string, 7> pStrings{};
@@ -75,7 +81,7 @@ class MessageLoader {
       default:
         break;
     }
-    return std::make_unique<TestMessage>();
+    return std::make_unique<EmptyMessage>();
   }
 
  protected:
