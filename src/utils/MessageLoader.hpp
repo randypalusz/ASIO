@@ -2,10 +2,11 @@
 #include <string>
 #include <array>
 #include <memory>
-// #include <functional>
+#include <functional>
 #include <type_traits>
 
 #include "Message.hpp"
+#include "Utility.hpp"
 
 class MessageLayout {
  public:
@@ -65,23 +66,15 @@ class MessageLoader {
     }
     return loader;
   }
-  // template <typename T>
   std::unique_ptr<MessageLayout> getMessage(uint8_t id, Message& m) {
-    // static_assert(std::is_base_of<MessageLayout, T>::value,
-    //               "T is not a descendant of MessageLayout");
-    // std::unique_ptr<T> t = std::make_unique<T>();
-    // t->loadMessage(m);
-    // return t;
-    switch (id) {
-      case 1: {
-        std::unique_ptr<TestMessage> t = std::make_unique<TestMessage>();
-        t->loadMessage(m);
-        return t;
-      }
-      default:
-        break;
+    try {
+      auto fn = idToCreatorMap.at(id);
+      auto ptr = fn();
+      ptr->loadMessage(m);
+      return ptr;
+    } catch (std::out_of_range& e) {
+      return std::make_unique<EmptyMessage>();
     }
-    return std::make_unique<EmptyMessage>();
   }
 
  protected:
@@ -89,4 +82,9 @@ class MessageLoader {
   static inline MessageLoader* loader = nullptr;
 
  private:
+  using MessageLayoutCreator = std::function<std::unique_ptr<MessageLayout>()>;
+  // msgID, function pointer that makes unique_ptr to desired message type
+  inline static const std::unordered_map<uint8_t, MessageLayoutCreator> idToCreatorMap{
+      {0, &utility::getUniquePtrToType<EmptyMessage>},
+      {1, &utility::getUniquePtrToType<TestMessage>}};
 };
