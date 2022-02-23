@@ -49,7 +49,7 @@ class Message {
   }
 
   template <typename DataType>
-  void getBytes(DataType& outStructure, size_t dataPosition) {
+  void getBytes(DataType& outStructure, size_t dataPosition) const {
     if (m_data.empty()) {
       return;
     }
@@ -66,7 +66,7 @@ class Message {
     std::memcpy(&outStructure, m_data.data() + getLayoutBytes(dataPosition), bytesToRead);
   }
 
-  void getBytes(std::string& outString, size_t dataPosition) {
+  void getBytes(std::string& outString, size_t dataPosition) const {
     if (m_data.empty()) {
       return;
     }
@@ -87,9 +87,9 @@ class Message {
                      m_data.data() + getLayoutBytes(dataPosition) + bytesToRead);
   }
 
-  uint64_t getLayoutBytes(size_t idx) {
+  uint64_t getLayoutBytes(size_t idx) const {
     try {
-      return m_dataLayout.at(idx);
+      return std::as_const(m_dataLayout).at(idx);
     } catch (const std::exception& e) {
       return 0;
     }

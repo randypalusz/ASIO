@@ -10,7 +10,7 @@
 
 class MessageLayout {
  public:
-  virtual void loadMessage(Message& m) = 0;
+  virtual void loadMessage(const Message& m) = 0;
   virtual void print() = 0;
   virtual ~MessageLayout(){};
 };
@@ -18,7 +18,7 @@ class MessageLayout {
 class EmptyMessage : public MessageLayout {
  public:
   void print() override { printf("Empty Message...\n"); }
-  void loadMessage(Message& m) { return; }
+  void loadMessage(const Message& m) { return; }
 };
 
 class TestMessage : public MessageLayout {
@@ -30,7 +30,7 @@ class TestMessage : public MessageLayout {
   } d[5];
   float x;
 
-  void loadMessage(Message& m) override {
+  void loadMessage(const Message& m) override {
     m.getBytes(pStrings[0], 0);
     m.getBytes(pStrings[1], 1);
     m.getBytes(pStrings[2], 2);
