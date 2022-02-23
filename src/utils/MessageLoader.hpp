@@ -10,6 +10,7 @@
 class MessageLayout {
  public:
   virtual void loadMessage(Message& m) = 0;
+  virtual void print() = 0;
   virtual ~MessageLayout(){};
 };
 
@@ -19,8 +20,8 @@ class TestMessage : public MessageLayout {
   struct temp {
     uint8_t a;
     uint8_t b;
-  } p2[5];
-  float p3;
+  } d[5];
+  float x;
 
   void loadMessage(Message& m) override {
     m.getBytes(pStrings[0], 0);
@@ -30,8 +31,21 @@ class TestMessage : public MessageLayout {
     m.getBytes(pStrings[4], 4);
     m.getBytes(pStrings[5], 5);
     m.getBytes(pStrings[6], 6);
-    m.getBytes(p2, 7);
-    m.getBytes(p3, 8);
+    m.getBytes(d, 7);
+    m.getBytes(x, 8);
+  }
+
+  void print() override {
+    printf("TestMessage: \n Strings:\n");
+    for (int i = 0; i < pStrings.size(); i++) {
+      printf("  pStrings[%d]: %s\n", i, pStrings[i].c_str());
+    }
+    printf("-------------------------------------------\n");
+    for (int i = 0; i <= 4; i++) {
+      printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, d[i].a, d[i].b);
+    }
+
+    printf("x: %f\n", x);
   }
 };
 
@@ -45,13 +59,23 @@ class MessageLoader {
     }
     return loader;
   }
-  template <typename T>
-  std::unique_ptr<T> getMessage(Message& m) {
-    static_assert(std::is_base_of<MessageLayout, T>::value,
-                  "T is not a descendant of MessageLayout");
-    std::unique_ptr<T> t = std::make_unique<T>();
-    t->loadMessage(m);
-    return t;
+  // template <typename T>
+  std::unique_ptr<MessageLayout> getMessage(uint8_t id, Message& m) {
+    // static_assert(std::is_base_of<MessageLayout, T>::value,
+    //               "T is not a descendant of MessageLayout");
+    // std::unique_ptr<T> t = std::make_unique<T>();
+    // t->loadMessage(m);
+    // return t;
+    switch (id) {
+      case 1: {
+        std::unique_ptr<TestMessage> t = std::make_unique<TestMessage>();
+        t->loadMessage(m);
+        return t;
+      }
+      default:
+        break;
+    }
+    return std::make_unique<TestMessage>();
   }
 
  protected:

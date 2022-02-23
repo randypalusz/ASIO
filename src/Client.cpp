@@ -49,16 +49,8 @@ void Client::run() {
     m.printBytes();
     m.printLayoutBytes();
 
-    std::unique_ptr<TestMessage> data = loader->getMessage<TestMessage>(m);
-
-    // printing stuff to prove that it works
-    std::cout << "value of d: " << std::endl;
-    for (int i = 0; i <= 4; i++) {
-      printf("{d[%d].a, d[%d].b} = {%d, %d}\n", i, i, data->p2[i].a, data->p2[i].b);
-    }
-    printf("value of x: %f\n", data->p3);
-    printf("first string: %s", data->pStrings[0].c_str());
-    // END printing stuff to prove that it works
+    std::unique_ptr<MessageLayout> data = loader->getMessage(1, m);
+    data->print();
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
