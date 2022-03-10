@@ -29,6 +29,8 @@ class EmptyMessage : public MessageLayout {
 class TestMessage : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::TEST; }
+  // TODO: tightly couple the ordering here with the actual ordering of the message data
+  // when creating a new message server-side
   std::array<std::string, 7> pStrings{};
   struct temp {
     uint8_t a;
