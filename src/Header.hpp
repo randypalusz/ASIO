@@ -5,6 +5,9 @@
 #include <vector>
 #include <iostream>
 
+#include "MessageEnums.hpp"
+// #include "MessageLoader.hpp"
+
 struct LayoutElement {
   int start;
   int end;
@@ -24,8 +27,10 @@ struct HeaderLayout {
 // TODO: move to .cpp file
 class Header {
  public:
-  Header(uint8_t id, uint64_t layoutSize, uint64_t size) {
-    m_id = id;
+  Header(MessageType type, uint64_t layoutSize, uint64_t size) {
+    // m_id = id;
+    m_type = type;
+    m_id = messageTypeToId(m_type);
     m_size = size;
     m_layoutSize = layoutSize;
     vectorizeSize();
@@ -33,6 +38,7 @@ class Header {
 
   Header(const std::vector<uint8_t>& header_recv_vector) {
     m_id = header_recv_vector.at(HeaderLayout::ID.start);
+    m_type = idToMessageType(m_id);
     m_layoutSizeBytes.insert(m_layoutSizeBytes.begin(),
                              header_recv_vector.begin() + HeaderLayout::LayoutSize.start,
                              header_recv_vector.begin() + HeaderLayout::LayoutSize.end);
@@ -110,6 +116,7 @@ class Header {
       shiftAmount -= 8;
     }
   }
+  MessageType m_type;
   uint8_t m_id{};
   uint64_t m_size = 0;
   uint64_t m_layoutSize = 0;

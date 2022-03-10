@@ -11,8 +11,9 @@ Client::Client(const std::string& ip, const std::string& port) try : m_socket{m_
   std::cerr << e.what() << std::endl;
 }
 
-void Client::sendInit() {
-  std::array<char, 1> send_buf{'0'};
+void Client::sendInit(MessageType type) {
+  std::array<char, 1> send_buf{};
+  send_buf.at(0) = static_cast<char>(messageTypeToId(type));
   m_socket.send_to(asio::buffer(send_buf), m_server);
 }
 
@@ -41,22 +42,21 @@ Message Client::receiveMessage() {
 void Client::run() {
   try {
     MessageLoader* loader = MessageLoader::getInstance();
-    sendInit();
+    sendInit(MessageType::TEST);
 
-    udp::endpoint sender_endpoint;
     Message m{receiveMessage()};
 
     m.printBytes();
     m.printLayoutBytes();
 
     // unique_ptr
-    auto data = loader->getMessage(m.getId(), m);
+    auto data = loader->getMessage(m);
     data->print();
 
     printf("\nTesting empty message:\n");
-    sendInit();
+    sendInit(MessageType::EMPTY);
     Message m2{receiveMessage()};
-    auto data2 = loader->getMessage(0, m);
+    auto data2 = loader->getMessage(m2);
     data2->print();
 
   } catch (std::exception& e) {

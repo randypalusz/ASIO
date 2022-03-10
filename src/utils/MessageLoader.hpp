@@ -11,18 +11,24 @@
 class MessageLayout {
  public:
   virtual void loadMessage(const Message& m) = 0;
+  virtual MessageType getEnum() = 0;
   virtual void print() = 0;
   virtual ~MessageLayout(){};
 };
 
 class EmptyMessage : public MessageLayout {
  public:
+  MessageType getEnum() override { return MessageType::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
-  void loadMessage(const Message& m) { return; }
+  void loadMessage(const Message& m) {
+    // Message should contain nothing, so load nothing...
+    return;
+  }
 };
 
 class TestMessage : public MessageLayout {
  public:
+  MessageType getEnum() override { return MessageType::TEST; }
   std::array<std::string, 7> pStrings{};
   struct temp {
     uint8_t a;
@@ -60,19 +66,24 @@ class MessageLoader {
  public:
   MessageLoader(MessageLoader& other) = delete;
   void operator=(const MessageLoader&) = delete;
+
   static inline MessageLoader* getInstance() {
     if (loader == nullptr) {
       loader = new MessageLoader();
     }
     return loader;
   }
-  std::unique_ptr<MessageLayout> getMessage(uint8_t id, Message& m) {
+  std::unique_ptr<MessageLayout> getMessage(Message& m) {
+    MessageType type = m.getType();
     try {
-      auto fn = idToCreatorMap.at(id);
+      auto fn = idToCreatorMap.at(type);
       auto ptr = fn();
       ptr->loadMessage(m);
       return ptr;
     } catch (std::out_of_range& e) {
+      std::cerr
+          << "Could not find message type in idToCreatorMap, returning EmptyMessage..."
+          << std::endl;
       return std::make_unique<EmptyMessage>();
     }
   }
@@ -84,7 +95,7 @@ class MessageLoader {
  private:
   using MessageLayoutCreator = std::function<std::unique_ptr<MessageLayout>()>;
   // msgID, function pointer that makes unique_ptr to desired message type
-  inline static const std::unordered_map<uint8_t, MessageLayoutCreator> idToCreatorMap{
-      {0, &utility::getUniquePtrToType<EmptyMessage>},
-      {1, &utility::getUniquePtrToType<TestMessage>}};
+  inline static const std::unordered_map<MessageType, MessageLayoutCreator>
+      idToCreatorMap{{MessageType::EMPTY, &utility::getUniquePtrToType<EmptyMessage>},
+                     {MessageType::TEST, &utility::getUniquePtrToType<TestMessage>}};
 };

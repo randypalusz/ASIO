@@ -13,7 +13,7 @@ class Client {
   void run();
 
  private:
-  void sendInit();
+  void sendInit(MessageType type);
   Header decodeHeader();
   Message receiveMessage();
 

@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 
+#include "MessageEnums.hpp"
 #include "Header.hpp"
 
 // Everything here is big-endian
@@ -15,9 +16,10 @@
 // TODO: move to .cpp file
 class Message {
  public:
-  Message(uint8_t id) : m_header(id, 0, 0) {}
+  Message(MessageType type) : m_header(type, 0, 0) {}
   // allow constructing of message on receiving side by passing entire receiver buffer
   Message(Header header, const std::vector<uint8_t>& body_recv_buf) : m_header(header) {
+    if (body_recv_buf.size() == 0) return;
     packLayoutBytes(body_recv_buf);
     m_data.insert(m_data.end(), body_recv_buf.begin() + header.getLayoutSize(),
                   body_recv_buf.end());
@@ -31,7 +33,7 @@ class Message {
     m_dataLayout.push_back(idx);
   }
 
-  inline const uint8_t getId() const { return m_header.getId(); }
+  inline const MessageType getType() const { return idToMessageType(m_header.getId()); }
 
   template <typename DataType>
   void pushData(const DataType& in) {
