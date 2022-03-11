@@ -1,9 +1,9 @@
-#include <unordered_map>
-#include <string>
 #include <array>
-#include <memory>
 #include <functional>
+#include <memory>
+#include <string>
 #include <type_traits>
+#include <unordered_map>
 
 #include "Message.hpp"
 #include "Utility.hpp"
@@ -20,7 +20,7 @@ class EmptyMessage : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
-  void loadMessage(const Message& m) {
+  void loadMessage(const Message& m) override {
     // Message should contain nothing, so load nothing...
     return;
   }

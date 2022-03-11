@@ -2,8 +2,9 @@
 #define HEADER_HPP
 
 #include <stdint.h>
-#include <vector>
+
 #include <iostream>
+#include <vector>
 
 #include "MessageEnums.hpp"
 // #include "MessageLoader.hpp"
@@ -77,13 +78,13 @@ class Header {
       uint8_t byte = m_layoutSizeBytes.at(i);
       std::printf("     0x%02X\n", byte);
     }
-    std::printf(" total layout size: %d\n", getLayoutSize());
+    std::printf(" total layout size: %llu\n", getLayoutSize());
     std::printf(" data bytes (high->low)\n");
     for (int i = 0; i < m_sizeBytes.size(); i++) {
       uint8_t byte = m_sizeBytes.at(i);
       std::printf("     0x%02X\n", byte);
     }
-    std::printf(" total size: %d\n", getSize());
+    std::printf(" total size: %llu\n", getSize());
     std::cout << "-----------------------------------" << std::endl;
   }
   const std::vector<uint8_t> construct() const {

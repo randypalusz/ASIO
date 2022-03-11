@@ -5,11 +5,11 @@
 
 #include <cstring>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "MessageEnums.hpp"
 #include "Header.hpp"
+#include "MessageEnums.hpp"
 
 // Everything here is big-endian
 
@@ -18,12 +18,7 @@ class Message {
  public:
   Message(MessageType type) : m_header(type, 0, 0) {}
   // allow constructing of message on receiving side by passing entire receiver buffer
-  Message(Header header, const std::vector<uint8_t>& body_recv_buf) : m_header(header) {
-    if (body_recv_buf.size() == 0) return;
-    packLayoutBytes(body_recv_buf);
-    m_data.insert(m_data.end(), body_recv_buf.begin() + header.getLayoutSize(),
-                  body_recv_buf.end());
-  }
+  Message(Header header, const std::vector<uint8_t>& body_recv_buf);
 
   void pushData(const std::string& inStr) {
     uint64_t idx = m_data.size();
@@ -108,7 +103,7 @@ class Message {
   void printLayoutBytes() {
     std::cout << "Layout Bytes: \n";
     for (uint64_t byte : m_dataLayout) {
-      printf("  0x%016X\n", byte);
+      printf("  0x%016llX\n", byte);
     }
     std::cout << std::endl;
   }
