@@ -19,17 +19,10 @@ class Message {
   Message(MessageType type) : m_header(type, 0, 0) {}
   // allow constructing of message on receiving side by passing entire receiver buffer
   Message(Header header, const std::vector<uint8_t>& body_recv_buf);
-
-  void pushData(const std::string& inStr) {
-    uint64_t idx = m_data.size();
-    m_data.insert(m_data.end(), inStr.begin(), inStr.end());
-    m_header.incrementSize(inStr.length());
-    m_header.incrementLayoutSize(8);
-    m_dataLayout.push_back(idx);
-  }
-
+  void pushData(const std::string& inStr);
   inline const MessageType getType() const { return idToMessageType(m_header.getId()); }
 
+  // template needs to be defined in the header
   template <typename DataType>
   void pushData(const DataType& in) {
     uint64_t dataTypeSize = sizeof(DataType);
@@ -44,6 +37,14 @@ class Message {
     m_header.incrementLayoutSize(8);
     m_dataLayout.push_back(idx);
   }
+
+  // converts the 64-bit starting locations into a vector of 8-bit values
+  // e.g.
+  // 0x000000001A300085 -> <0x00, 0x00, 0x00, 0x00, 0x1A, 0x30, 0x00, 0x85>
+  // then, appends the data vector to that to get the final message buffer
+  // intended for server-side acquisition of data buffer for send
+  std::vector<uint8_t> getBytes();
+  void getBytes(std::string& outString, size_t dataPosition) const;
 
   template <typename DataType>
   void getBytes(DataType& outStructure, size_t dataPosition) const {
@@ -63,87 +64,17 @@ class Message {
     std::memcpy(&outStructure, m_data.data() + getLayoutBytes(dataPosition), bytesToRead);
   }
 
-  void getBytes(std::string& outString, size_t dataPosition) const {
-    if (m_data.empty()) {
-      return;
-    }
-    size_t bytesToRead = 0;
-    // if grabbing the last piece of data, read to the end
-    if (dataPosition == (m_dataLayout.size() - 1)) {
-      bytesToRead = m_data.size() - getLayoutBytes(dataPosition);
-    } else {
-      bytesToRead = getLayoutBytes(dataPosition + 1) - getLayoutBytes(dataPosition);
-    }
-    if (bytesToRead == 0) {
-      return;
-    }
-    // outString.resize(bytesToRead);
-    // std::memcpy(&outString[0], m_data.data() + getLayoutBytes(dataPosition),
-    // bytesToRead);
-    outString.assign(m_data.data() + getLayoutBytes(dataPosition),
-                     m_data.data() + getLayoutBytes(dataPosition) + bytesToRead);
-  }
+  uint64_t getLayoutBytes(size_t idx) const;
 
-  uint64_t getLayoutBytes(size_t idx) const {
-    try {
-      return std::as_const(m_dataLayout).at(idx);
-    } catch (const std::exception& e) {
-      return 0;
-    }
-  }
+  void printBytes();
+  void printLayoutBytes();
+  inline void printHeader() { m_header.print(); }
+  inline const std::vector<uint8_t> getHeader() { return m_header.construct(); }
 
-  void printBytes() {
-    std::cout << "Bytes: ";
-    for (uint8_t byte : m_data) {
-      std::cout << byte;
-    }
-    std::cout << std::endl;
-  }
-
-  void printLayoutBytes() {
-    std::cout << "Layout Bytes: \n";
-    for (uint64_t byte : m_dataLayout) {
-      printf("  0x%016llX\n", byte);
-    }
-    std::cout << std::endl;
-  }
-
-  void printHeader() { m_header.print(); }
-
-  const std::vector<uint8_t> getHeader() { return m_header.construct(); }
-
-  // converts the 64-bit starting locations into a vector of 8-bit values
-  // e.g.
-  // 0x000000001A300085 -> <0x00, 0x00, 0x00, 0x00, 0x1A, 0x30, 0x00, 0x85>
-  // then, appends the data vector to that to get the final message buffer
-  std::vector<uint8_t> getBytes() {
-    std::vector<uint8_t> temp{};
-    for (uint64_t word : m_dataLayout) {
-      for (int shiftAmount = 64 - 8; shiftAmount >= 0; shiftAmount -= 8) {
-        temp.push_back((word >> shiftAmount) & 0x00FF);
-      }
-    }
-    temp.insert(temp.end(), m_data.begin(), m_data.end());
-    return temp;
-  }
-
-  size_t getSize() { return m_data.size(); }
+  inline size_t getSize() { return m_data.size(); }
 
  private:
-  void packLayoutBytes(const std::vector<uint8_t>& newData) {
-    // m_dataLayout.resize(m_header.getLayoutSize() / 8);
-    uint64_t word = 0;
-    int shiftAmount = 64;
-    for (int i = 0; i <= m_header.getLayoutSize(); i++) {
-      shiftAmount -= 8;
-      if (shiftAmount < 0) {
-        m_dataLayout.push_back(word);
-        word = 0;
-        shiftAmount = 56;
-      }
-      word |= (newData.at(i) << shiftAmount);
-    }
-  }
+  void packLayoutBytes(const std::vector<uint8_t>& newData);
   Header m_header;
   // stores starting index of each thing pushed to m_data
   std::vector<uint64_t> m_dataLayout;
