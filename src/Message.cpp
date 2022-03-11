@@ -20,21 +20,15 @@ void Message::getBytes(std::string& outString, size_t dataPosition) const {
   if (m_data.empty()) {
     return;
   }
-  size_t bytesToRead = 0;
-  // if grabbing the last piece of data, read to the end
-  if (dataPosition == (m_dataLayout.size() - 1)) {
-    bytesToRead = m_data.size() - getLayoutBytes(dataPosition);
-  } else {
-    bytesToRead = getLayoutBytes(dataPosition + 1) - getLayoutBytes(dataPosition);
-  }
+  size_t bytesToRead = getNumBytesToRead(dataPosition);
   if (bytesToRead == 0) {
     return;
   }
-  outString.assign(m_data.data() + getLayoutBytes(dataPosition),
-                   m_data.data() + getLayoutBytes(dataPosition) + bytesToRead);
+  outString.assign(m_data.data() + getDataElementOffset(dataPosition),
+                   m_data.data() + getDataElementOffset(dataPosition) + bytesToRead);
 }
 
-uint64_t Message::getLayoutBytes(size_t idx) const {
+uint64_t Message::getDataElementOffset(size_t idx) const {
   try {
     return std::as_const(m_dataLayout).at(idx);
   } catch (const std::exception& e) {
@@ -82,4 +76,16 @@ void Message::packLayoutBytes(const std::vector<uint8_t>& newData) {
     }
     word |= (newData.at(i) << shiftAmount);
   }
+}
+
+size_t Message::getNumBytesToRead(size_t dataPosition) const {
+  size_t bytesToRead = 0;
+  // if grabbing the last piece of data, read to the end
+  if (dataPosition == (m_dataLayout.size() - 1)) {
+    bytesToRead = m_data.size() - getDataElementOffset(dataPosition);
+  } else {
+    bytesToRead =
+        getDataElementOffset(dataPosition + 1) - getDataElementOffset(dataPosition);
+  }
+  return bytesToRead;
 }
