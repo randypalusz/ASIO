@@ -13,7 +13,6 @@
 
 // Everything here is big-endian
 
-// TODO: move to .cpp file
 class Message {
  public:
   Message(MessageType type) : m_header(type, 0, 0) {}
@@ -35,7 +34,6 @@ class Message {
   // intended for server-side acquisition of data buffer for sending data out
   std::vector<uint8_t> getBytes();
 
-  // Previously called getDataLayoutBytes
   uint64_t getDataElementOffset(size_t idx) const;
 
   void printBytes();
