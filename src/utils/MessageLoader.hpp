@@ -1,3 +1,4 @@
+#include <any>
 #include <array>
 #include <functional>
 #include <memory>
@@ -12,18 +13,29 @@ class MessageLayout {
  public:
   virtual void loadMessage(const Message& m) = 0;
   virtual MessageType getEnum() = 0;
+  virtual std::any getDataLayout(size_t idx) { return m_layout.at(idx); };
   virtual void print() = 0;
   virtual ~MessageLayout(){};
+
+ protected:
+  std::vector<std::any> m_layout;
+
+ private:
+  virtual void defineDataLayout() = 0;
 };
 
 class EmptyMessage : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
+  std::any getDataLayout(size_t idx) override { return 0; }
   void loadMessage(const Message& m) override {
     // Message should contain nothing, so load nothing...
     return;
   }
+
+ protected:
+  void defineDataLayout() override {}
 };
 
 class TestMessage : public MessageLayout {
@@ -39,13 +51,16 @@ class TestMessage : public MessageLayout {
   float x;
 
   void loadMessage(const Message& m) override {
-    m.getBytes(pStrings[0], 0);
-    m.getBytes(pStrings[1], 1);
-    m.getBytes(pStrings[2], 2);
-    m.getBytes(pStrings[3], 3);
-    m.getBytes(pStrings[4], 4);
-    m.getBytes(pStrings[5], 5);
-    m.getBytes(pStrings[6], 6);
+    for (int i = 0; i <= 6; i++) {
+      m.getBytes(pStrings.at(i), i);
+    }
+    // m.getBytes(pStrings[0], 0);
+    // m.getBytes(pStrings[1], 1);
+    // m.getBytes(pStrings[2], 2);
+    // m.getBytes(pStrings[3], 3);
+    // m.getBytes(pStrings[4], 4);
+    // m.getBytes(pStrings[5], 5);
+    // m.getBytes(pStrings[6], 6);
     m.getBytes(d, 7);
     m.getBytes(x, 8);
   }
@@ -61,6 +76,20 @@ class TestMessage : public MessageLayout {
     }
 
     printf("x: %f\n", x);
+  }
+
+ private:
+  void defineDataLayout() override {
+    m_layout.clear();
+    m_layout.push_back(pStrings.at(0));
+    m_layout.push_back(pStrings.at(1));
+    m_layout.push_back(pStrings.at(2));
+    m_layout.push_back(pStrings.at(3));
+    m_layout.push_back(pStrings.at(4));
+    m_layout.push_back(pStrings.at(5));
+    m_layout.push_back(pStrings.at(6));
+    m_layout.push_back(d);
+    m_layout.push_back(x);
   }
 };
 
