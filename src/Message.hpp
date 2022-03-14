@@ -46,6 +46,8 @@ class Message {
   void packLayoutBytes(const std::vector<uint8_t>& newData);
   size_t getNumBytesToRead(size_t dataPosition) const;
   Header m_header;
+  // MessageLoader* m_loader = MessageLoader::getInstance();
+  // MessageLayout* m_layout = nullptr;
   // stores starting index of each thing pushed to m_data
   std::vector<uint64_t> m_dataLayout;
   std::vector<uint8_t> m_data;
@@ -66,6 +68,7 @@ void Message::getBytes(DataType& outStructure, size_t dataPosition) const {
 
 template <typename DataType>
 void Message::pushData(const DataType& in) {
+  // printf("");
   uint64_t dataTypeSize = sizeof(DataType);
   uint64_t idx = m_data.size();
 

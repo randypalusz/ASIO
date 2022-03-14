@@ -66,6 +66,7 @@ class Header {
     vectorizeSize();
   }
   inline const uint8_t getId() const { return m_id; }
+  inline const MessageType getType() const { return m_type; }
   const uint64_t getSize() const { return m_size; }
   const uint64_t getLayoutSize() const { return m_layoutSize; }
   const std::vector<uint8_t> getVectorizedSize() const { return m_sizeBytes; }
