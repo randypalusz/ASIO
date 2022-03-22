@@ -27,6 +27,11 @@ class MessageLoader {
  private:
   using MessageLayoutCreator = std::function<std::unique_ptr<MessageLayout>()>;
   // msgID, function pointer that makes unique_ptr to desired message type
+  // TODO: think about combining this with the idToTypeMap in MessageEnums
+  //       to create a vector<tuple(uint8_t, MessageType, MessageLayoutCreator)>
+  //       This would consolidate everything related to these enums in one spot.
+  //       Also think about initializing this new structure upon first MessageLoader
+  //       instantiation
   inline static const std::unordered_map<MessageType, MessageLayoutCreator>
       idToCreatorMap{{MessageType::EMPTY, &utility::getUniquePtrToType<EmptyMessage>},
                      {MessageType::TEST, &utility::getUniquePtrToType<TestMessage>}};

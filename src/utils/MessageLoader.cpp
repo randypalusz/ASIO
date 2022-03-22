@@ -12,7 +12,7 @@ std::unique_ptr<MessageLayout> MessageLoader::getMessage(Message& m) {
   try {
     auto fn = idToCreatorMap.at(type);
     auto ptr = fn();
-    ptr->loadMessage(m);
+    ptr->loadDataFromMessage(m);
     return ptr;
   } catch (std::out_of_range& e) {
     std::cerr

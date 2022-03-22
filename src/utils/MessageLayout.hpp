@@ -7,11 +7,9 @@
 #include "Message.hpp"
 #include "MessageEnums.hpp"
 
-class Message;
-
 class MessageLayout {
  public:
-  virtual void loadMessage(const Message& m) = 0;
+  virtual void loadDataFromMessage(const Message& m) = 0;
   virtual MessageType getEnum() = 0;
   virtual std::any getDataLayout(size_t idx) {
     if (!m_layoutInitialized) {
@@ -36,7 +34,7 @@ class EmptyMessage : public MessageLayout {
   MessageType getEnum() override { return MessageType::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
   std::any getDataLayout(size_t idx) override { return 0; }
-  void loadMessage(const Message& m) override {
+  void loadDataFromMessage(const Message& m) override {
     // Message should contain nothing, so load nothing...
     return;
   }
@@ -48,8 +46,8 @@ class EmptyMessage : public MessageLayout {
 class TestMessage : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::TEST; }
-  // TODO: tightly couple the ordering here with the actual ordering of the message data
-  // when creating a new message server-side
+  // TODO: Create a message builder class that will build each message in the
+  //       correct order with the given data
   std::array<std::string, 7> pStrings{};
   struct temp {
     uint8_t a;
@@ -57,7 +55,7 @@ class TestMessage : public MessageLayout {
   } d[5];
   float x;
 
-  void loadMessage(const Message& m) override {
+  void loadDataFromMessage(const Message& m) override {
     for (int i = 0; i <= 6; i++) {
       m.getBytes(pStrings.at(i), i);
     }

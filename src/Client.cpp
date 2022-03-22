@@ -6,12 +6,13 @@ Client::Client(const std::string& ip, const std::string& port) try : m_socket{m_
   udp::resolver resolver(m_context);
   m_server = *resolver.resolve(udp::v4(), ip, port).begin();
   // TODO: should this be opened here or on sendInit?
-  m_socket.open(udp::v4());
+  // m_socket.open(udp::v4());
 } catch (std::exception& e) {
   std::cerr << e.what() << std::endl;
 }
 
 void Client::sendInit(MessageType type) {
+  m_socket.open(udp::v4());
   std::array<char, 1> send_buf{};
   send_buf.at(0) = static_cast<char>(messageTypeToId(type));
   m_socket.send_to(asio::buffer(send_buf), m_server);
@@ -35,6 +36,7 @@ Message Client::receiveMessage() {
   // grab the data from the sender
   m_socket.receive_from(asio::buffer(data_recv_buf), m_client);
 
+  m_socket.close();
   // reconstruct Message object from header + data
   return Message{header, data_recv_buf};
 }
