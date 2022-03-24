@@ -33,7 +33,8 @@ class MessageLoader {
   //       Also think about initializing this new structure upon first MessageLoader
   //       instantiation
   inline static const std::unordered_map<MessageType, MessageLayoutCreator>
-      idToCreatorMap{{MessageType::EMPTY, &utility::getUniquePtrToType<EmptyMessage>},
-                     {MessageType::TEST, &utility::getUniquePtrToType<TestMessage>}};
+      idToCreatorMap{
+          {MessageType::EMPTY, &utility::getUniquePtrToType<EmptyMessageLayout>},
+          {MessageType::TEST, &utility::getUniquePtrToType<TestMessageLayout>}};
 };
 #endif

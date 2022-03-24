@@ -20,6 +20,9 @@ class Message {
   Message(Header header, const std::vector<uint8_t>& body_recv_buf);
   inline const MessageType getType() const { return idToMessageType(m_header.getId()); }
 
+  // TODO: make these private, make Message a friend class of MessageLayout
+  //       so that MessageLayout has exclusive access (so message cannot be
+  //       malformed or misinterpreted in any way)
   template <typename DataType>
   void pushData(const DataType& in);
   void pushData(const std::string& inStr);

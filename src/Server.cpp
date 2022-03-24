@@ -28,13 +28,22 @@ asio::error_code Server::sendMessage(Message message) {
 Message Server::buildMessage(MessageType type) {
   switch (type) {
     case MessageType::TEST: {
-      Message m(MessageType::TEST);
-      m.pushData("hello");
-      m.pushData("world");
-      m.pushData(m_inputString);
-      m.pushData("\n");
-      m.pushData("{\n\"this\": 3,\n\"is\": \'a\',\n\"test\": \'hello\'\n}");
-      m.pushData(
+      Message m{MessageType::TEST};
+      TestMessageLayout testLayout{};
+
+      struct temp {
+        uint8_t a = 3;
+        uint8_t b = 4;
+      } d[5];
+      d[4].b = 5;
+
+      testLayout.pStrings.at(0) = "hello";
+      testLayout.pStrings.at(1) = "world";
+      testLayout.pStrings.at(2) = m_inputString;
+      testLayout.pStrings.at(3) = "\n";
+      testLayout.pStrings.at(4) =
+          "{\n\"this\": 3,\n\"is\": \'a\',\n\"test\": \'hello\'\n}";
+      testLayout.pStrings.at(5) =
           "wuyzYHjnKGX5wztdWX25B2QtjxmLhTkDWNmojf40aemRRqk2ih9YvoCREBEBi6Ltvv9Eh93NUkkiWD"
           "SgVxtl2qSPNJocYrJNW661mjS7Z2CjiKnkmGCtV1LrzqlBX9aOWPQ4DAayNDFS9HKgvqJzRAkLOrNJ"
           "EoUUvtgZT9aGwfXtK6FDlEbEi8DmtRo5haqkISNtHPSbf3QtKszH2DJEqqyqP8Bm9thn5V8gW0j9vO"
@@ -47,22 +56,22 @@ Message Server::buildMessage(MessageType type) {
           "7WHV721pHC8YJ1wjtUdLWfe7pwYY28nQeRWEjJL1Pc9NjKdKCg6FSaFvakXKVQ35n0QZ00X8LUlLFl"
           "hyA9IYAqSpHPT2REuws2bxUqRwXHvMVssLfhEdQorm71NzKYbSHJ1KAgVWZyEvZMKcmRS2Ji0GvXBb"
           "HmuOaf4jAin696jefbyK8rLRAV6qRzPAxrCRYtvNcIkKh1hsIgl8sQaAsH6XTfTAd0nxNjwnnAeGVR"
-          "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND");
-      m.pushData(
+          "LuTpSeCZ18iPIzYHOWoPcltujyRVg22viHRYRf4lNtYOCEYAdbBMNeQlzV7gSe6_THEEND";
+      testLayout.pStrings.at(6) =
           "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7, Ace\"], [\"one pair\", "
-          "\"10, Heart\"]]}");
-      struct temp {
-        uint8_t a = 3;
-        uint8_t b = 4;
-      } d[5];
-      d[4].b = 5;
-      m.pushData(d);
-      m.pushData(3.0f);
-
+          "\"10, Heart\"]]}";
+      std::memcpy(testLayout.d, d, sizeof(d));
+      // TODO: this isn't working for now, maybe there's a way to avoid memcpy here
+      //       whenever the object is created in the Server class
+      //       note: could always assign value by value
+      // for (int i = 0; i <= 5; i++) {
+      //   testLayout.d[i] = d[i];
+      // }
+      testLayout.x = 3.1f;
+      testLayout.constructMessage(m);
       m.printHeader();
       m.printBytes();
       m.printLayoutBytes();
-
       return m;
     }
     case MessageType::EMPTY: {

@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include "Message.hpp"
+#include "MessageLayout.hpp"
 #include "asio.hpp"
 #include <string>
 

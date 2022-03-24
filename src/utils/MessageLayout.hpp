@@ -1,7 +1,7 @@
 #ifndef MESSAGE_LAYOUT_HPP
 #define MESSAGE_LAYOUT_HPP
-#include <any>
 #include <array>
+#include <cassert>
 #include <string>
 
 #include "Message.hpp"
@@ -10,44 +10,34 @@
 class MessageLayout {
  public:
   virtual void loadDataFromMessage(const Message& m) = 0;
+  virtual void constructMessage(Message& m) {
+    assert(m.getType() == getEnum());
+    pushLayoutDataIntoMessage(m);
+  }
   virtual MessageType getEnum() = 0;
-  virtual std::any getDataLayout(size_t idx) {
-    if (!m_layoutInitialized) {
-      defineDataLayout();
-      m_layoutInitialized = true;
-    }
-    return m_layout.at(idx);
-  };
   virtual void print() = 0;
   virtual ~MessageLayout(){};
 
- protected:
-  std::vector<std::any> m_layout;
-  bool m_layoutInitialized = false;
-
  private:
-  virtual void defineDataLayout() = 0;
+  virtual void pushLayoutDataIntoMessage(Message& m) = 0;
 };
 
-class EmptyMessage : public MessageLayout {
+class EmptyMessageLayout : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
-  std::any getDataLayout(size_t idx) override { return 0; }
   void loadDataFromMessage(const Message& m) override {
     // Message should contain nothing, so load nothing...
     return;
   }
 
- protected:
-  void defineDataLayout() override {}
+ private:
+  void pushLayoutDataIntoMessage(Message& m) override { return; }
 };
 
-class TestMessage : public MessageLayout {
+class TestMessageLayout : public MessageLayout {
  public:
   MessageType getEnum() override { return MessageType::TEST; }
-  // TODO: Create a message builder class that will build each message in the
-  //       correct order with the given data
   std::array<std::string, 7> pStrings{};
   struct temp {
     uint8_t a;
@@ -77,16 +67,12 @@ class TestMessage : public MessageLayout {
   }
 
  private:
-  void defineDataLayout() override {
-    m_layout.push_back(pStrings.at(0));
-    m_layout.push_back(pStrings.at(1));
-    m_layout.push_back(pStrings.at(2));
-    m_layout.push_back(pStrings.at(3));
-    m_layout.push_back(pStrings.at(4));
-    m_layout.push_back(pStrings.at(5));
-    m_layout.push_back(pStrings.at(6));
-    m_layout.push_back(d);
-    m_layout.push_back(x);
+  void pushLayoutDataIntoMessage(Message& m) override {
+    for (int i = 0; i <= 6; i++) {
+      m.pushData(pStrings.at(i));
+    }
+    m.pushData(d);
+    m.pushData(x);
   }
 };
 

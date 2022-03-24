@@ -15,9 +15,9 @@ std::unique_ptr<MessageLayout> MessageLoader::getMessage(Message& m) {
     ptr->loadDataFromMessage(m);
     return ptr;
   } catch (std::out_of_range& e) {
-    std::cerr
-        << "Could not find message type in idToCreatorMap, returning EmptyMessage..."
-        << std::endl;
-    return std::make_unique<EmptyMessage>();
+    std::cerr << "Could not find message type in idToCreatorMap, returning "
+                 "EmptyMessageLayout..."
+              << std::endl;
+    return std::make_unique<EmptyMessageLayout>();
   }
 }
