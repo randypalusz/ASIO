@@ -16,7 +16,7 @@ MessageEnums::Type Server::waitForInitSignal() {
   return type;
 }
 
-asio::error_code Server::sendMessage(Message message) {
+asio::error_code Server::sendMessage(Message& message) {
   asio::error_code ignored_error;
   // send header
   m_socket.send_to(asio::buffer(message.getHeader()), m_remoteEndpoint, 0, ignored_error);
@@ -61,12 +61,6 @@ Message Server::buildMessage(MessageEnums::Type type) {
           "{\"name\": \"Gilbert\", \"wins\": [[\"straight\", \"7, Ace\"], [\"one pair\", "
           "\"10, Heart\"]]}";
       std::memcpy(testLayout.d, d, sizeof(d));
-      // TODO: this isn't working for now, maybe there's a way to avoid memcpy here
-      //       whenever the object is created in the Server class
-      //       note: could always assign value by value
-      // for (int i = 0; i <= 5; i++) {
-      //   testLayout.d[i] = d[i];
-      // }
       testLayout.x = 3.1f;
       testLayout.constructMessage(m);
       m.printHeader();

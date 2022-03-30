@@ -20,7 +20,7 @@ class Server {
   // will break out into different messages based on init from Client
   // (currently, Client only sends a single char to initiate send from Server)
   Message buildMessage(MessageEnums::Type type);
-  asio::error_code sendMessage(Message message);
+  asio::error_code sendMessage(Message& message);
 
  private:
   asio::io_context m_context{};

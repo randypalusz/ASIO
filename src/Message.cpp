@@ -1,11 +1,19 @@
 #include "Message.hpp"
 
+Message::Message(MessageEnums::Type type) : m_header(type, 0, 0) {
+  m_loader = MessageLoader::getInstance();
+  m_layout = m_loader->getLayout(type);
+}
+
 Message::Message(Header header, const std::vector<uint8_t>& body_recv_buf)
     : m_header(header) {
   if (body_recv_buf.size() == 0) return;
   packLayoutBytes(body_recv_buf);
   m_data.insert(m_data.end(), body_recv_buf.begin() + header.getLayoutSize(),
                 body_recv_buf.end());
+  m_loader = MessageLoader::getInstance();
+  m_layout = m_loader->getMessage(*this);
+  m_layout->print();
 }
 
 void Message::pushData(const std::string& inStr) {

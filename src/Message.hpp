@@ -10,21 +10,22 @@
 
 #include "Header.hpp"
 #include "MessageEnums.hpp"
+#include "MessageLayout.hpp"
+#include "MessageLoader.hpp"
 
 // Everything here is big-endian
+class MessageLayout;
+class MessageLoader;
 
 class Message {
  public:
-  Message(MessageEnums::Type type) : m_header(type, 0, 0) {}
+  Message(MessageEnums::Type type);
   // allow constructing of message on receiving side by passing entire receiver buffer
   Message(Header header, const std::vector<uint8_t>& body_recv_buf);
   inline const MessageEnums::Type getType() const {
     return MessageEnums::idToType(m_header.getId());
   }
 
-  // TODO: make these private, make Message a friend class of MessageLayout
-  //       so that MessageLayout has exclusive access (so message cannot be
-  //       malformed or misinterpreted in any way)
   template <typename DataType>
   void pushData(const DataType& in);
   void pushData(const std::string& inStr);
@@ -51,8 +52,8 @@ class Message {
   void packLayoutBytes(const std::vector<uint8_t>& newData);
   size_t getNumBytesToRead(size_t dataPosition) const;
   Header m_header;
-  // MessageLoader* m_loader = MessageLoader::getInstance();
-  // MessageLayout* m_layout = nullptr;
+  MessageLoader* m_loader = nullptr;
+  std::unique_ptr<MessageLayout> m_layout = nullptr;
   // stores starting index of each thing pushed to m_data
   std::vector<uint64_t> m_dataLayout;
   std::vector<uint8_t> m_data;

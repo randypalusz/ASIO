@@ -12,6 +12,9 @@
 #include "MessageLayout.hpp"
 #include "Utility.hpp"
 
+class Message;
+class MessageLayout;
+
 class MessageLoader {
  public:
   MessageLoader(MessageLoader& other) = delete;
@@ -19,6 +22,11 @@ class MessageLoader {
 
   static MessageLoader* getInstance();
   std::unique_ptr<MessageLayout> getMessage(Message& m);
+  // TODO: think about returning a shared_ptr here:
+  //       purpose would be to allow the Client to grab a concrete layout
+  //       if known while the Message itself can still hold onto a reference
+  //       of this layout if needed.
+  std::unique_ptr<MessageLayout> getLayout(MessageEnums::Type type);
 
  protected:
   MessageLoader() {}
@@ -32,9 +40,8 @@ class MessageLoader {
   //       This would consolidate everything related to these enums in one spot.
   //       Also think about initializing this new structure upon first MessageLoader
   //       instantiation
-  inline static const std::unordered_map<MessageEnums::Type, MessageLayoutCreator>
-      idToCreatorMap{
-          {MessageEnums::Type::EMPTY, &utility::getUniquePtrToType<EmptyMessageLayout>},
-          {MessageEnums::Type::TEST, &utility::getUniquePtrToType<TestMessageLayout>}};
+  static void initializeCreatorMap();
+  inline static std::unordered_map<MessageEnums::Type, MessageLayoutCreator>
+      idToCreatorMap;
 };
 #endif

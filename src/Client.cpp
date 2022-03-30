@@ -43,30 +43,32 @@ Message Client::receiveMessage() {
 
 void Client::run() {
   try {
-    MessageLoader* loader = MessageLoader::getInstance();
+    // MessageLoader* loader = MessageLoader::getInstance();
     sendInit(MessageEnums::Type::TEST);
-
     Message m{receiveMessage()};
 
-    m.printBytes();
-    m.printLayoutBytes();
-
-    // unique_ptr
-    auto data = loader->getMessage(m);
-    data->print();
-
-    printf("\nTesting empty message:\n");
     sendInit(MessageEnums::Type::EMPTY);
     Message m2{receiveMessage()};
-    auto data2 = loader->getMessage(m2);
-    data2->print();
 
-    printf("\nTesting loading Message directly into layout\n");
-    sendInit(MessageEnums::Type::TEST);
-    Message m3{receiveMessage()};
-    TestMessageLayout t{};
-    t.loadDataFromMessage(m3);
-    t.print();
+    // m.printBytes();
+    // m.printLayoutBytes();
+
+    // unique_ptr
+    // auto data = loader->getMessage(m);
+    // data->print();
+
+    // printf("\nTesting empty message:\n");
+    // sendInit(MessageEnums::Type::EMPTY);
+    // Message m2{receiveMessage()};
+    // auto data2 = loader->getMessage(m2);
+    // data2->print();
+
+    // printf("\nTesting loading Message directly into layout\n");
+    // sendInit(MessageEnums::Type::TEST);
+    // Message m3{receiveMessage()};
+    // TestMessageLayout t{};
+    // t.loadDataFromMessage(m3);
+    // t.print();
 
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;

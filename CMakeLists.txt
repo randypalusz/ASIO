@@ -19,6 +19,7 @@ set(RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
 set(COMMON_SOURCES
   ${SRC_DIR}/Message.cpp
   ${SRC_DIR}/utils/MessageLoader.cpp
+  ${SRC_DIR}/utils/MessageLayout.cpp
 )
 
 set(CLIENT_SOURCES
