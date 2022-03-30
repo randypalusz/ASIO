@@ -61,6 +61,13 @@ void Client::run() {
     auto data2 = loader->getMessage(m2);
     data2->print();
 
+    printf("\nTesting loading Message directly into layout\n");
+    sendInit(MessageEnums::Type::TEST);
+    Message m3{receiveMessage()};
+    TestMessageLayout t{};
+    t.loadDataFromMessage(m3);
+    t.print();
+
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }
