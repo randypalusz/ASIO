@@ -15,10 +15,12 @@
 
 class Message {
  public:
-  Message(MessageType type) : m_header(type, 0, 0) {}
+  Message(MessageEnums::Type type) : m_header(type, 0, 0) {}
   // allow constructing of message on receiving side by passing entire receiver buffer
   Message(Header header, const std::vector<uint8_t>& body_recv_buf);
-  inline const MessageType getType() const { return idToMessageType(m_header.getId()); }
+  inline const MessageEnums::Type getType() const {
+    return MessageEnums::idToType(m_header.getId());
+  }
 
   // TODO: make these private, make Message a friend class of MessageLayout
   //       so that MessageLayout has exclusive access (so message cannot be

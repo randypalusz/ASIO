@@ -13,7 +13,7 @@ class Client {
   void run();
 
  private:
-  void sendInit(MessageType type);
+  void sendInit(MessageEnums::Type type);
   Header decodeHeader();
   Message receiveMessage();
 

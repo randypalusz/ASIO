@@ -14,7 +14,7 @@ class MessageLayout {
     assert(m.getType() == getEnum());
     pushLayoutDataIntoMessage(m);
   }
-  virtual MessageType getEnum() = 0;
+  virtual MessageEnums::Type getEnum() = 0;
   virtual void print() = 0;
   virtual ~MessageLayout(){};
 
@@ -24,7 +24,7 @@ class MessageLayout {
 
 class EmptyMessageLayout : public MessageLayout {
  public:
-  MessageType getEnum() override { return MessageType::EMPTY; }
+  MessageEnums::Type getEnum() override { return MessageEnums::Type::EMPTY; }
   void print() override { printf("Empty Message...\n"); }
   void loadDataFromMessage(const Message& m) override {
     // Message should contain nothing, so load nothing...
@@ -37,7 +37,7 @@ class EmptyMessageLayout : public MessageLayout {
 
 class TestMessageLayout : public MessageLayout {
  public:
-  MessageType getEnum() override { return MessageType::TEST; }
+  MessageEnums::Type getEnum() override { return MessageEnums::Type::TEST; }
   std::array<std::string, 7> pStrings{};
   struct temp {
     uint8_t a;

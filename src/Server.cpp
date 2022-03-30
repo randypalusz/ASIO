@@ -9,10 +9,10 @@ Server::Server(int port, const std::string& inputString) try
   std::cerr << e.what() << std::endl;
 }
 
-MessageType Server::waitForInitSignal() {
+MessageEnums::Type Server::waitForInitSignal() {
   std::array<char, 1> recv_buf;
   m_socket.receive_from(asio::buffer(recv_buf), m_remoteEndpoint);
-  MessageType type = idToMessageType(recv_buf.at(0));
+  MessageEnums::Type type = MessageEnums::idToType(recv_buf.at(0));
   return type;
 }
 
@@ -25,10 +25,10 @@ asio::error_code Server::sendMessage(Message message) {
   return ignored_error;
 }
 
-Message Server::buildMessage(MessageType type) {
+Message Server::buildMessage(MessageEnums::Type type) {
   switch (type) {
-    case MessageType::TEST: {
-      Message m{MessageType::TEST};
+    case MessageEnums::Type::TEST: {
+      Message m{MessageEnums::Type::TEST};
       TestMessageLayout testLayout{};
 
       struct temp {
@@ -74,8 +74,8 @@ Message Server::buildMessage(MessageType type) {
       m.printLayoutBytes();
       return m;
     }
-    case MessageType::EMPTY: {
-      Message m(MessageType::EMPTY);
+    case MessageEnums::Type::EMPTY: {
+      Message m(MessageEnums::Type::EMPTY);
       return m;
     }
     default:
@@ -85,7 +85,7 @@ Message Server::buildMessage(MessageType type) {
 
 void Server::run() {
   for (;;) {
-    MessageType type = waitForInitSignal();
+    MessageEnums::Type type = waitForInitSignal();
     Message m{buildMessage(type)};
     sendMessage(m);
   }

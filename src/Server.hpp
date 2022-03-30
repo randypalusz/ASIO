@@ -15,11 +15,11 @@ class Server {
 
  private:
   // collects the init signal, returns the message type based on the init byte
-  MessageType waitForInitSignal();
+  MessageEnums::Type waitForInitSignal();
   // temp function to build a known message
   // will break out into different messages based on init from Client
   // (currently, Client only sends a single char to initiate send from Server)
-  Message buildMessage(MessageType type);
+  Message buildMessage(MessageEnums::Type type);
   asio::error_code sendMessage(Message message);
 
  private:

@@ -11,10 +11,10 @@ Client::Client(const std::string& ip, const std::string& port) try : m_socket{m_
   std::cerr << e.what() << std::endl;
 }
 
-void Client::sendInit(MessageType type) {
+void Client::sendInit(MessageEnums::Type type) {
   m_socket.open(udp::v4());
   std::array<char, 1> send_buf{};
-  send_buf.at(0) = static_cast<char>(messageTypeToId(type));
+  send_buf.at(0) = static_cast<char>(MessageEnums::typeToId(type));
   m_socket.send_to(asio::buffer(send_buf), m_server);
 }
 
@@ -44,7 +44,7 @@ Message Client::receiveMessage() {
 void Client::run() {
   try {
     MessageLoader* loader = MessageLoader::getInstance();
-    sendInit(MessageType::TEST);
+    sendInit(MessageEnums::Type::TEST);
 
     Message m{receiveMessage()};
 
@@ -56,7 +56,7 @@ void Client::run() {
     data->print();
 
     printf("\nTesting empty message:\n");
-    sendInit(MessageType::EMPTY);
+    sendInit(MessageEnums::Type::EMPTY);
     Message m2{receiveMessage()};
     auto data2 = loader->getMessage(m2);
     data2->print();

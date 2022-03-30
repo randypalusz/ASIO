@@ -32,9 +32,9 @@ class MessageLoader {
   //       This would consolidate everything related to these enums in one spot.
   //       Also think about initializing this new structure upon first MessageLoader
   //       instantiation
-  inline static const std::unordered_map<MessageType, MessageLayoutCreator>
+  inline static const std::unordered_map<MessageEnums::Type, MessageLayoutCreator>
       idToCreatorMap{
-          {MessageType::EMPTY, &utility::getUniquePtrToType<EmptyMessageLayout>},
-          {MessageType::TEST, &utility::getUniquePtrToType<TestMessageLayout>}};
+          {MessageEnums::Type::EMPTY, &utility::getUniquePtrToType<EmptyMessageLayout>},
+          {MessageEnums::Type::TEST, &utility::getUniquePtrToType<TestMessageLayout>}};
 };
 #endif

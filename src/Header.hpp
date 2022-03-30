@@ -28,10 +28,10 @@ struct HeaderLayout {
 // TODO: move to .cpp file
 class Header {
  public:
-  Header(MessageType type, uint64_t layoutSize, uint64_t size) {
+  Header(MessageEnums::Type type, uint64_t layoutSize, uint64_t size) {
     // m_id = id;
     m_type = type;
-    m_id = messageTypeToId(m_type);
+    m_id = MessageEnums::typeToId(m_type);
     m_size = size;
     m_layoutSize = layoutSize;
     vectorizeSize();
@@ -39,7 +39,7 @@ class Header {
 
   Header(const std::vector<uint8_t>& header_recv_vector) {
     m_id = header_recv_vector.at(HeaderLayout::ID.start);
-    m_type = idToMessageType(m_id);
+    m_type = MessageEnums::idToType(m_id);
     m_layoutSizeBytes.insert(m_layoutSizeBytes.begin(),
                              header_recv_vector.begin() + HeaderLayout::LayoutSize.start,
                              header_recv_vector.begin() + HeaderLayout::LayoutSize.end);
@@ -66,7 +66,7 @@ class Header {
     vectorizeSize();
   }
   inline const uint8_t getId() const { return m_id; }
-  inline const MessageType getType() const { return m_type; }
+  inline const MessageEnums::Type getType() const { return m_type; }
   const uint64_t getSize() const { return m_size; }
   const uint64_t getLayoutSize() const { return m_layoutSize; }
   const std::vector<uint8_t> getVectorizedSize() const { return m_sizeBytes; }
@@ -118,7 +118,7 @@ class Header {
       shiftAmount -= 8;
     }
   }
-  MessageType m_type;
+  MessageEnums::Type m_type;
   uint8_t m_id{};
   uint64_t m_size = 0;
   uint64_t m_layoutSize = 0;
