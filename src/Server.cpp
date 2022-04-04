@@ -29,6 +29,11 @@ Message Server::buildMessage(MessageEnums::Type type) {
   switch (type) {
     case MessageEnums::Type::TEST: {
       Message m{MessageEnums::Type::TEST};
+      // TODO: use the MessageLayout field in Message to load items.
+      //       Maybe have a "getLayout" method that can be static_cast to the known layout
+      //       or can use templates like so:
+      //       template <typename T>
+      //       T& Message::getLayout() { return m_layout; }
       TestMessageLayout testLayout{};
 
       struct temp {

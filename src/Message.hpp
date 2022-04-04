@@ -52,6 +52,7 @@ class Message {
   void packLayoutBytes(const std::vector<uint8_t>& newData);
   size_t getNumBytesToRead(size_t dataPosition) const;
   Header m_header;
+  // TODO: I think this leaks - need to delete this in Message destructor
   MessageLoader* m_loader = nullptr;
   std::unique_ptr<MessageLayout> m_layout = nullptr;
   // stores starting index of each thing pushed to m_data
